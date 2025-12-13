@@ -22,9 +22,9 @@ export default function Navbar() {
 
   const navItems = [
     { label: 'Home', href: '/' },
-    { label: 'Marketplace', href: '/marketplace' },
+    { label: 'Marketplace', href: '/signup' },
     { label: 'How It Works', href: '/how-it-works' },
-    { label: 'Sell', href: '/sell' },
+    { label: 'Sell', href: '/signup' },
   ]
 
   return (
