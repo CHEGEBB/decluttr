@@ -2,7 +2,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, ShoppingCart, MessageCircle, User, LogOut, Menu } from 'lucide-react';
+import Link from 'next/link';
+import { Search, ShoppingCart, MessageCircle, User, LogOut, Menu, Home, Store, Package, Phone } from 'lucide-react';
 import Image from 'next/image';
 
 interface NavbarProps {
@@ -25,12 +26,10 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
   };
 
   const navItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Shop', href: '/shop' },
-    { label: 'Products', href: '/products' },
-    { label: 'Pages', href: '/pages' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'Home', href: '/main/marketplace', icon: Home },
+    { label: 'Shop', href: '/main/shop', icon: Store },
+    { label: 'Products', href: '/main/products', icon: Package },
+    { label: 'Contact', href: '/main/contact', icon: Phone },
   ];
 
   return (
@@ -52,24 +51,32 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
                 </button>
               </div>
               <div className="space-y-4">
-                {navItems.map((item) => (
-                  <a key={item.label} href={item.href} className="block text-gray-700 hover:text-red-600 font-semibold py-2">
-                    {item.label}
-                  </a>
-                ))}
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link key={item.label} href={item.href} className="flex items-center text-gray-700 hover:text-red-600 font-semibold py-2">
+                      <Icon className="w-5 h-5 mr-3" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
                 <div className="pt-4 border-t">
-                  <a href="/messages" className="flex items-center text-gray-700 hover:text-red-600 py-2">
+                  <Link href="/main/messages" className="flex items-center text-gray-700 hover:text-red-600 py-2">
                     <MessageCircle className="w-5 h-5 mr-3" />
                     Messages
-                  </a>
-                  <a href="/cart" className="flex items-center text-gray-700 hover:text-red-600 py-2">
+                    <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
+                  </Link>
+                  <Link href="/main/cart" className="flex items-center text-gray-700 hover:text-red-600 py-2">
                     <ShoppingCart className="w-5 h-5 mr-3" />
-                    Cart ({cartCount})
-                  </a>
-                  <a href="/profile" className="flex items-center text-gray-700 hover:text-red-600 py-2">
+                    Cart
+                    {cartCount > 0 && (
+                      <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">{cartCount}</span>
+                    )}
+                  </Link>
+                  <Link href="/main/profile" className="flex items-center text-gray-700 hover:text-red-600 py-2">
                     <User className="w-5 h-5 mr-3" />
                     Profile
-                  </a>
+                  </Link>
                   <button className="flex items-center text-gray-700 hover:text-red-600 py-2 w-full">
                     <LogOut className="w-5 h-5 mr-3" />
                     Logout
@@ -92,29 +99,41 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
               >
                 <Menu className="w-6 h-6" />
               </button>
-              <Image
-                src="/assets/logodark.png"
-                alt="Decluttr Logo"
-                width={140}
-                height={45}
-                className="hidden lg:block"
-              />
-              <Image
-                src="/assets/logodark.png"
-                alt="Decluttr Logo"
-                width={100}
-                height={35}
-                className="lg:hidden"
-              />
+              <Link href="/main">
+                <Image
+                  src="/assets/logodark.png"
+                  alt="Decluttr Logo"
+                  width={140}
+                  height={45}
+                  className="hidden lg:block cursor-pointer"
+                />
+              </Link>
+              <Link href="/main">
+                <Image
+                  src="/assets/logodark.png"
+                  alt="Decluttr Logo"
+                  width={100}
+                  height={35}
+                  className="lg:hidden cursor-pointer"
+                />
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-8">
-              {navItems.map((item) => (
-                <a key={item.label} href={item.href} className="text-gray-700 hover:text-red-600 font-semibold transition-colors">
-                  {item.label}
-                </a>
-              ))}
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link 
+                    key={item.label} 
+                    href={item.href} 
+                    className="flex items-center gap-2 text-gray-700 hover:text-red-600 font-semibold transition-colors"
+                  >
+                    <Icon className="w-5 h-5" />
+                    {item.label}
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Search Bar */}
@@ -137,25 +156,32 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
               </div>
             </div>
 
-            {/* Right Side Icons */}
+            {/* Right Side Icons with Labels */}
             <div className="flex items-center gap-4 lg:gap-6">
-              <button className="relative text-gray-700 hover:text-red-600 transition-colors hidden lg:block">
+              <Link href="/main/messages" className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors relative">
                 <MessageCircle className="w-6 h-6" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">3</span>
-              </button>
-              <button className="relative text-gray-700 hover:text-red-600 transition-colors">
+                <span className="font-semibold">Messages</span>
+                <span className="absolute -top-1 left-3 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">3</span>
+              </Link>
+              
+              <Link href="/main/cart" className="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors relative">
                 <ShoppingCart className="w-6 h-6" />
+                <span className="hidden lg:inline font-semibold">Cart</span>
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
+                  <span className="absolute -top-1 left-3 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
                     {cartCount}
                   </span>
                 )}
-              </button>
-              <button className="text-gray-700 hover:text-red-600 transition-colors hidden lg:block">
+              </Link>
+              
+              <Link href="/main/profile" className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors">
                 <User className="w-6 h-6" />
-              </button>
-              <button className="text-gray-700 hover:text-red-600 transition-colors hidden lg:block">
+                <span className="font-semibold">Profile</span>
+              </Link>
+              
+              <button className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors">
                 <LogOut className="w-6 h-6" />
+                <span className="font-semibold">Logout</span>
               </button>
             </div>
           </div>

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/purity */
 // components/marketplace/ProductCard.tsx
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Heart, Star, MapPin, Eye, Tag } from 'lucide-react';
 
 interface Product {
@@ -42,7 +42,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
 
   return (
     <div 
-      className="group bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100"
+      className="group bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -131,7 +131,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
           <div className="flex items-center gap-1.5">
             <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
             <span className="text-base font-semibold text-gray-900">{product.rating}</span>
-            <span className="text-sm text-gray-500">({Math.floor(Math.random() * 100) + 1})</span>
+            <span className="text-sm text-gray-500">({product.id * 7 % 100 + 1})</span>
           </div>
         </div>
 

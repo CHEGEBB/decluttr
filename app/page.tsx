@@ -16,29 +16,38 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full opacity-5"
-            style={{
-              background: `conic-gradient(from 0deg, #DB362D, #10B981, #3B82F6, #DB362D)`,
-              width: Math.random() * 200 + 100,
-              height: Math.random() * 200 + 100,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              rotate: 360,
-            }}
-            transition={{
-              duration: 20 + Math.random() * 10,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        ))}
-      </div>
+      {/* Animated Background Elements */}
+<div className="fixed inset-0 overflow-hidden pointer-events-none">
+  {[...Array(15)].map((_, i) => {
+    // Generate consistent values based on index
+    const size = ((i * 37) % 100) + 100;
+    const left = ((i * 67) % 100);
+    const top = ((i * 89) % 100);
+    const duration = 20 + ((i * 13) % 10);
+    
+    return (
+      <motion.div
+        key={i}
+        className="absolute rounded-full opacity-5"
+        style={{
+          background: `conic-gradient(from 0deg, #DB362D, #10B981, #3B82F6, #DB362D)`,
+          width: size,
+          height: size,
+          left: `${left}%`,
+          top: `${top}%`,
+        }}
+        animate={{
+          rotate: 360,
+        }}
+        transition={{
+          duration: duration,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
+    );
+  })}
+</div>
 
       <Navbar />
       

@@ -9,6 +9,7 @@ import { ProductCard } from '@/components/marketplace/ProductCard';
 import { HeroSection } from '@/components/marketplace/HeroSection';
 import { CategoryTabs } from '@/components/marketplace/CategoryTabs';
 import { Filter } from 'lucide-react';
+import Footer from '@/components/footer';
 
 // Extended Mock Products Data (48 items)
 const products = [
@@ -352,7 +353,7 @@ const products = [
   {
     id: 29,
     name: 'Standing Desk Adjustable',
-    image: 'https://images.unsplash.com/photo-1531416738519-cf1b25c203cc?w=800&h=800&fit=crop',
+    image: 'https://images.unsplash.com/photo-1762681829669-2cd09f21ad7a?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8U3RhbmRpbmclMjBEZXNrJTIwQWRqdXN0YWJsZXxlbnwwfHwwfHx8MA%3D%3D',
     seller: 'work_from_home',
     category: 'Furniture',
     type: 'Resale',
@@ -412,7 +413,7 @@ const products = [
   {
     id: 34,
     name: 'Cookbook Collection',
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&h=800&fit=crop',
+    image: 'https://images.unsplash.com/photo-1565951556573-1beb896beb26?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fENvb2tib29rJTIwQ29sbGVjdGlvbnxlbnwwfHwwfHx8MA%3D%3D',
     seller: 'chef_at_home',
     category: 'Books',
     type: 'Resale',
@@ -532,7 +533,7 @@ const products = [
   {
     id: 44,
     name: 'Camping Tent 4 Person',
-    image: 'https://images.unsplash.com/photo-1504851149312-7a075b496cc7?w=800&h=800&fit=crop',
+    image: 'https://images.unsplash.com/photo-1703304862580-206bdf82fbc8?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Q2FtcGluZyUyMFRlbnQlMjA0JTIwUGVyc29ufGVufDB8fDB8fHww',
     seller: 'outdoor_adventurer',
     category: 'Sports',
     type: 'Resale',
@@ -556,7 +557,7 @@ const products = [
   {
     id: 46,
     name: 'Kitchen Knife Set',
-    image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&h=800&fit=crop',
+    image: 'https://images.unsplash.com/photo-1589071634465-75d7ce737fa8?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fEtpdGNoZW4lMjBLbmlmZSUyMFNldHxlbnwwfHwwfHx8MA%3D%3D',
     seller: 'cooking_pro',
     category: 'Home',
     type: 'Resale',
@@ -761,6 +762,7 @@ export default function MarketplacePage() {
           </div>
         </div>
       </div>
+      <Footer/>
 
       {/* Global Styles */}
       <style jsx global>{`
