@@ -346,7 +346,7 @@ export default function CheckoutPage() {
 
             {/* Payment Method - M-Pesa Focus */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6">
+              <div className="p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
                   <Smartphone className="w-5 h-5 text-green-600" />
                   M-Pesa Payment

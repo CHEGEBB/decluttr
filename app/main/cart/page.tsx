@@ -427,7 +427,7 @@ export default function CartPage() {
             {/* Order Summary Card */}
             <div className="sticky top-24 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
               {/* Header */}
-              <div className="bg-gradient-to-r from-red-600 via-red-700 to-red-600 p-6">
+              <div className="bg-black p-6">
                 <h2 className="text-xl font-bold text-white flex items-center gap-3">
                   <CreditCard className="w-6 h-6" />
                   Order Summary
@@ -436,7 +436,7 @@ export default function CartPage() {
 
               <div className="p-6">
                 {/* Security Badge */}
-                <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200 mb-6">
+                <div className="flex items-center gap-3 p-4 border border-emerald-200 mb-6">
                   <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl flex items-center justify-center">
                     <Shield className="w-6 h-6 text-white" />
                   </div>
