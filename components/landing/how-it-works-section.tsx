@@ -37,7 +37,7 @@ const steps = [
 ];
 
 export default function HowItWorksSection() {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
     <section className="py-20 md:py-32 bg-gray-50">

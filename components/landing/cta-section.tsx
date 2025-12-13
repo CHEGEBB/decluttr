@@ -1,89 +1,99 @@
-// components/cta-section.tsx
-'use client'
-
-import { motion } from 'framer-motion'
-import { ArrowRight, CheckCircle } from 'lucide-react'
-import Link from 'next/link'
+import React, { useState, useEffect } from 'react';
+import { ArrowRight } from 'lucide-react';
 
 export default function CTASection() {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <section className="relative py-24 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-emerald/5 to-blue/5" />
-      
-      {/* Floating Elements */}
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-primary/20 to-emerald/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gradient-to-r from-emerald/20 to-blue/20 rounded-full blur-3xl" />
+    <section className="relative py-32 md:py-40 overflow-hidden bg-gradient-to-br from-red-50/20 via-green-50/20 to-blue-50/20">
+      {/* Parallax Background Elements */}
+      <div 
+        className="absolute top-0 left-0 w-96 h-96 bg-red-500 rounded-full blur-3xl opacity-20"
+        style={{ transform: `translateY(${scrollY * 0.3}px)` }}
+      />
+      <div 
+        className="absolute bottom-0 right-0 w-96 h-96 bg-green-500 rounded-full blur-3xl opacity-20"
+        style={{ transform: `translateY(${-scrollY * 0.2}px)` }}
+      />
+      <div 
+        className="absolute top-1/2 left-1/2 w-64 h-64 bg-blue-500 rounded-full blur-3xl opacity-20"
+        style={{ transform: `translate(-50%, -50%) translateY(${scrollY * 0.15}px)` }}
+      />
 
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto text-center bg-white rounded-3xl shadow-2xl p-8 sm:p-12 lg:p-16 border border-gray-200"
-        >
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald/10 to-blue/10 border border-emerald/20 mb-8">
-            <CheckCircle className="w-4 h-4 text-emerald" />
-            <span className="text-sm font-medium text-gray-700">No credit card required</span>
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Large background text */}
+          <div className="relative mb-16">
+            <div 
+              className="absolute text-7xl sm:text-8xl md:text-9xl font-black text-white whitespace-nowrap pointer-events-none select-none opacity-40"
+              style={{
+                top: '-30px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 0,
+              }}
+            >
+              Join Today
+            </div>
+            <h2 className="text-5xl md:text-7xl font-black text-gray-900 mb-6 relative z-10">
+              Ready to Start?
+            </h2>
           </div>
 
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-            <span className="block text-gray-900">Ready to Start</span>
-            <span className="block bg-gradient-to-r from-primary via-emerald to-blue bg-clip-text text-transparent">
-              Your Recommerce Journey?
-            </span>
-          </h2>
-
-          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Join thousands of sellers who are building sustainable businesses on DECLUTTR.
-            Everything you need, completely free to start.
+          <p className="text-2xl md:text-3xl text-gray-700 mb-12 font-medium max-w-3xl mx-auto">
+            Create your account and start buying or selling today
           </p>
 
-          {/* Feature Grid */}
-          <div className="grid sm:grid-cols-3 gap-6 mb-12">
-            {[
-              'No listing fees',
-              'Secure payments',
-              'Mobile app',
-              '24/7 support',
-              'Analytics dashboard',
-              'Community network',
-            ].map((feature, index) => (
-              <motion.div
-                key={feature}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-                className="flex items-center gap-3 justify-center"
-              >
-                <div className="w-2 h-2 rounded-full bg-emerald" />
-                <span className="text-gray-700 font-medium">{feature}</span>
-              </motion.div>
-            ))}
-          </div>
-
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/signup"
-              className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-primary to-emerald text-white font-semibold rounded-xl hover:shadow-xl hover:shadow-primary/25 transition-all duration-300 overflow-hidden"
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+            <button
+              className="group relative px-12 py-6 rounded-2xl font-bold text-xl text-white overflow-hidden transition-all duration-300 hover:scale-105 shadow-2xl"
+              style={{
+                backgroundColor: '#10B981',
+              }}
             >
-              <span>Start Selling Free</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald to-blue opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </Link>
+              <span className="relative z-10 flex items-center gap-3">
+                Get Started Free
+                <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+              </span>
+            </button>
 
-            <Link
-              href="/marketplace"
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:border-primary hover:text-primary hover:shadow-lg transition-all duration-300"
+            <button
+              className="px-12 py-6 rounded-2xl font-bold text-xl border-3 transition-all duration-300 hover:scale-105"
+              style={{
+                borderWidth: '3px',
+                borderColor: '#111827',
+                color: '#111827',
+                backgroundColor: 'transparent',
+              }}
             >
-              Browse Top Sellers
-            </Link>
+              Learn More
+            </button>
           </div>
-        </motion.div>
+
+          {/* Features */}
+          <div className="flex flex-wrap justify-center gap-8 text-gray-700">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="font-semibold">Free to use</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-blue-500" />
+              <span className="font-semibold">Secure payments</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="font-semibold">Easy messaging</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
-  )
+  );
 }

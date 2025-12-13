@@ -124,8 +124,8 @@ export default function HeroSection() {
 
               {/* Description */}
               <p className="text-xl lg:text-2xl text-gray-300 mb-10 max-w-2xl leading-relaxed">
-                The most trusted platform for buying, selling, and donating pre-loved items.
-                Everything you need to declutter your space and build your recommerce business.
+              Our platform helps you declutter your space while giving your items a second life through re-commerce.
+              Whether you’re clearing out, selling, or finding something pre-loved, Decluttr makes the process simple, smart, and sustainable.
               </p>
 
               {/* CTA Buttons */}

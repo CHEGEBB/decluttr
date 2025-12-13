@@ -1,5 +1,6 @@
 // components/footer.tsx
 import { ShoppingBag, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 export default function Footer() {
@@ -43,13 +44,16 @@ export default function Footer() {
           {/* Logo & Description */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-emerald rounded-lg flex items-center justify-center">
-                <ShoppingBag className="w-6 h-6 text-white" />
+              <div className="logo">
+                <Image
+                    src="/assets/logolight.png"
+                    alt="Decluttr Logo"
+                    width={250}
+                    height={50}
+                    priority
+                    />
               </div>
-              <div>
-                <span className="text-2xl font-bold text-white">DECLUTTR</span>
-                <p className="text-sm text-gray-400">Declutter. Sell. Thrive.</p>
-              </div>
+             
             </Link>
             <p className="text-gray-400 mb-6 max-w-md">
               A secure, user-friendly platform enabling sustainable commerce through
@@ -93,18 +97,13 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-gray-800">
+        <div className="pt-8 border-t border-gray-800 flex justify-center">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
               © {new Date().getFullYear()} DECLUTTR. All rights reserved.
             </p>
             <div className="flex items-center space-x-6">
-              <span className="text-sm text-gray-400">
-                Presented by Mary Ann Wangechi Koome
-              </span>
-              <span className="text-sm text-gray-400">
-                Dedan Kimathi University of Technology
-              </span>
+             
             </div>
           </div>
         </div>

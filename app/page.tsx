@@ -10,6 +10,7 @@ import HowItWorksSection from '@/components/landing/how-it-works-section'
 import TestimonialsSection from '@/components/landing/testimonials'
 import CTASection from '@/components/landing/cta-section'
 import Footer from '@/components/footer'
+import StatsSection from '@/components/landing/stats-section'
 
 export default function LandingPage() {
   return (
@@ -39,13 +40,14 @@ export default function LandingPage() {
         ))}
       </div>
 
-      <Navbar scrollY={0} />
+      <Navbar />
       
       <main className="relative z-10">
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
         <TestimonialsSection />
+        <StatsSection/>
         <CTASection />
       </main>
 

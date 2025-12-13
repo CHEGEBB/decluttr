@@ -1,127 +1,153 @@
-// components/landing/stats-section.tsx
-'use client'
-
-import { motion } from 'framer-motion'
-import { Users, Package, TrendingUp, Globe } from 'lucide-react'
-import CountUp from 'react-countup'
+import React, { useState } from 'react';
+import { Users, ShoppingBag, MessageSquare, MapPin } from 'lucide-react';
 
 const stats = [
   {
     icon: Users,
-    value: 15000,
-    suffix: '+',
-    label: 'Active Users',
-    description: 'Community members',
-    color: 'text-emerald',
-    bg: 'bg-emerald/10',
+    value: '50+',
+    label: 'Registered Users',
+    color: '#DB362D',
   },
   {
-    icon: Package,
-    value: 2847,
-    suffix: '+',
-    label: 'Listed Items',
-    description: 'Available for exchange',
-    color: 'text-primary',
-    bg: 'bg-primary/10',
+    icon: ShoppingBag,
+    value: '20+',
+    label: 'Items Listed',
+    color: '#10B981',
   },
   {
-    icon: TrendingUp,
-    value: 8924,
-    suffix: '+',
-    label: 'Transactions',
-    description: 'Successful exchanges',
-    color: 'text-blue',
-    bg: 'bg-blue/10',
+    icon: MessageSquare,
+    value: '10+',
+    label: 'Messages Sent',
+    color: '#3B82F6',
   },
   {
-    icon: Globe,
-    value: 125,
-    suffix: ' tons',
-    label: 'Waste Reduced',
-    description: 'Environmental impact',
-    color: 'text-emerald',
-    bg: 'bg-emerald/10',
+    icon: MapPin,
+    value: '5',
+    label: 'Categories Available',
+    color: '#DB362D',
   },
-]
+];
 
 export default function StatsSection() {
-  return (
-    <section className="py-20 bg-gradient-to-b from-white to-surface">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-              <span className="block">Join Our Growing</span>
-              <span className="bg-gradient-to-r from-primary to-emerald bg-clip-text text-transparent">
-                Sustainable Community
-              </span>
-            </h2>
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              Every transaction on DECLUTTR contributes to a circular economy,
-              reducing waste and creating value from pre-loved items.
-            </p>
-            
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 rounded-full bg-emerald" />
-                <span className="text-lg">Admin-verified sellers for security</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 rounded-full bg-primary" />
-                <span className="text-lg">Secure M-Pesa payments</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 rounded-full bg-blue" />
-                <span className="text-lg">Real-time messaging system</span>
-              </div>
-            </div>
-          </motion.div>
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-          {/* Right Stats */}
-          <div className="grid grid-cols-2 gap-6">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon
-              return (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className={`${stat.bg} rounded-2xl p-6 border border-transparent hover:border-current/20 transition-colors`}
+  return (
+    <section className="py-20 md:py-32 bg-white relative overflow-hidden">
+      {/* Subtle background decoration */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-red-600 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-green-500 rounded-full blur-3xl" />
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Section Header */}
+        <div className="max-w-3xl mx-auto text-center mb-16 md:mb-20 relative">
+          <div className="relative">
+            {/* Large background text */}
+            <div 
+              className="absolute text-6xl sm:text-7xl md:text-8xl font-black text-gray-100 whitespace-nowrap pointer-events-none select-none"
+              style={{
+                top: '-15px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 0,
+              }}
+            >
+              Our Platform
+            </div>
+            {/* Foreground text */}
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 relative z-10">
+              Our Platform
+            </h2>
+          </div>
+          <p className="text-lg md:text-xl text-gray-600 relative z-10">
+            Building a community for sustainable exchanges
+          </p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 max-w-6xl mx-auto">
+          {stats.map((stat, index) => {
+            const Icon = stat.icon;
+            const isHovered = hoveredIndex === index;
+            
+            return (
+              <div
+                key={stat.label}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                className="relative group"
+              >
+                <div 
+                  className="bg-gray-50 rounded-2xl p-6 md:p-8 text-center transition-all duration-300 border-2"
+                  style={{
+                    borderColor: isHovered ? stat.color : 'transparent',
+                    transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
+                    boxShadow: isHovered ? `0 20px 40px -10px ${stat.color}40` : 'none',
+                  }}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <Icon className={`w-8 h-8 ${stat.color}`} />
+                  {/* Icon */}
+                  <div 
+                    className="inline-flex p-4 rounded-xl mb-4 transition-all duration-300"
+                    style={{
+                      backgroundColor: isHovered ? stat.color : '#F9FAFB',
+                      transform: isHovered ? 'scale(1.1) rotate(5deg)' : 'scale(1)',
+                    }}
+                  >
+                    <Icon 
+                      className="w-8 h-8 transition-colors duration-300" 
+                      style={{ color: isHovered ? '#FFFFFF' : stat.color }}
+                    />
                   </div>
-                  
-                  <div className="mb-2">
-                    <div className="flex items-baseline">
-                      <span className="text-3xl font-bold text-gray-900">
-                        <CountUp
-                          end={stat.value}
-                          duration={2.5}
-                          separator=","
-                        />
-                      </span>
-                      {stat.suffix && (
-                        <span className="text-xl font-semibold text-gray-900">{stat.suffix}</span>
-                      )}
-                    </div>
+
+                  {/* Value */}
+                  <div 
+                    className="text-4xl md:text-5xl font-black mb-2 transition-colors duration-300"
+                    style={{ color: isHovered ? stat.color : '#111827' }}
+                  >
+                    {stat.value}
                   </div>
-                  
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{stat.label}</h3>
-                  <p className="text-sm text-gray-600">{stat.description}</p>
-                </motion.div>
-              )
-            })}
+
+                  {/* Label */}
+                  <div className="text-sm md:text-base font-semibold text-gray-600">
+                    {stat.label}
+                  </div>
+
+                  {/* Bottom accent line */}
+                  <div className="mt-6 h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full transition-all duration-500 rounded-full"
+                      style={{
+                        width: isHovered ? '100%' : '0%',
+                        backgroundColor: stat.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Bottom Features */}
+        <div className="mt-16 md:mt-20 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { label: 'M-Pesa Payments', color: '#10B981' },
+              { label: 'Direct Messaging', color: '#3B82F6' },
+              { label: 'User Dashboard', color: '#DB362D' },
+            ].map((feature) => (
+              <div key={feature.label} className="flex items-center gap-3 justify-center md:justify-start">
+                <div 
+                  className="w-2 h-2 rounded-full" 
+                  style={{ backgroundColor: feature.color }}
+                />
+                <span className="text-gray-700 font-medium">{feature.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
