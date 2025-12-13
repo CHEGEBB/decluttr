@@ -28,8 +28,11 @@ import { Navbar } from '@/components/marketplace/Navbar';
 import Footer from '@/components/footer';
 
 // Mock order data from cart
+// Generate consistent order ID based on a fixed timestamp
+const FIXED_ORDER_ID = 'ORD-47614224';
+
 const mockOrder = {
-  id: `ORD-${Date.now().toString().slice(-8)}`,
+  id: FIXED_ORDER_ID,
   items: [
     {
       id: 1,
@@ -163,7 +166,7 @@ export default function CheckoutPage() {
                 View Order Details
               </Link>
               <Link 
-                href="/marketplace"
+                href="/main/marketplace"
                 className="block w-full py-3 bg-gray-100 text-gray-700 font-bold rounded-xl text-center hover:bg-gray-200 transition-all"
               >
                 Continue Shopping
