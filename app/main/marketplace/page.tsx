@@ -694,7 +694,7 @@ export default function MarketplacePage() {
                   <select 
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 bg-white"
+                    className="px-4 py-2 border border-gray-300 text-gray-500 placeholder:text-gray-500 rounded-lg focus:outline-none focus:border-red-500 bg-white"
                   >
                     <option value="featured">Featured</option>
                     <option value="price-low">Price: Low to High</option>

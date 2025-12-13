@@ -18,7 +18,7 @@ const heroSlides = [
     title: 'Shop Smart',
     subtitle: 'Live Better',
     description: 'Discover quality pre-owned items at amazing prices. Save money while saving the planet.',
-    bgImage: 'https://images.unsplash.com/photo-1555421689-d68471e189f2?w=1920&h=600&fit=crop',
+    bgImage: 'https://images.unsplash.com/photo-1674027392857-9aed6e8ecab9?w=1500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjJ8fG9ubGluZSUyMHNob3B8ZW58MHx8MHx8fDA%3D',
   },
   {
     id: 3,

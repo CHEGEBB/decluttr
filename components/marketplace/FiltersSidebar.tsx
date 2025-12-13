@@ -218,7 +218,7 @@ export function FiltersSidebar({
                       type="number"
                       value={localPriceRange.min}
                       onChange={(e) => handlePriceChange('min', e.target.value)}
-                      className="w-full pl-12 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                      className="w-full pl-12 pr-3 py-2.5 text-gray-500 placeholder:text-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                       placeholder="0"
                     />
                   </div>
@@ -231,7 +231,7 @@ export function FiltersSidebar({
                       type="number"
                       value={localPriceRange.max || ''}
                       onChange={(e) => handlePriceChange('max', e.target.value)}
-                      className="w-full pl-12 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                      className="w-full pl-12 pr-3 py-2.5 border text-gray-500 placeholder:text-gray-500 border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                       placeholder="1,000,000"
                     />
                   </div>
@@ -255,7 +255,7 @@ export function FiltersSidebar({
                     type="checkbox" 
                     checked={selectedConditions.includes(condition)}
                     onChange={() => handleConditionToggle(condition)}
-                    className="mr-3 w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500 focus:ring-2"
+                    className="mr-3 w-5 h-5 text-red-600 rounded text-gray-500 placeholder:text-gray-500 border-gray-300 focus:ring-red-500 focus:ring-2"
                   />
                   <span className="text-gray-600 group-hover:text-gray-900 transition-colors">
                     {condition}
@@ -281,7 +281,7 @@ export function FiltersSidebar({
                     type="checkbox" 
                     checked={selectedRatings.includes(rating)}
                     onChange={() => handleRatingToggle(rating)}
-                    className="mr-3 w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500 focus:ring-2"
+                    className="mr-3 w-5 h-5 text-red-600 text-gray-500 placeholder:text-gray-500 rounded border-gray-300 focus:ring-red-500 focus:ring-2"
                   />
                   <div className="flex items-center gap-2">
                     {[...Array(5)].map((_, i) => (
