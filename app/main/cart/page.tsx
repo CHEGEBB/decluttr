@@ -26,6 +26,7 @@ import {
 import Link from 'next/link';
 import { Navbar } from '@/components/marketplace/Navbar';
 import Footer from '@/components/footer';
+import { InfiniteMarquee } from '@/components/marketplace/InfiniteMarquee';
 
 // Mock cart items
 const initialCartItems = [
@@ -221,6 +222,8 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+            <InfiniteMarquee />
+
       <Navbar cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} onSearch={handleSearch} />
       
       {/* Success Animation (only shows when redirected from checkout) */}

@@ -26,6 +26,7 @@ import {
 import Link from 'next/link';
 import { Navbar } from '@/components/marketplace/Navbar';
 import Footer from '@/components/footer';
+import { InfiniteMarquee } from '@/components/marketplace/InfiniteMarquee';
 
 // Mock order data from cart
 // Generate consistent order ID based on a fixed timestamp
@@ -138,6 +139,8 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+              <InfiniteMarquee />
+
       <Navbar cartCount={4} onSearch={handleSearch} />
       
       {/* Success Modal */}

@@ -28,7 +28,6 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
   const navItems = [
     { label: 'Home', href: '/main/marketplace', icon: Home },
     { label: 'Shop', href: '/main/shop', icon: Store },
-    { label: 'Products', href: '/main/products', icon: Package },
     { label: 'Contact', href: '/main/contact', icon: Phone },
   ];
 

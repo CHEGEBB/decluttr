@@ -2,6 +2,7 @@
 /* eslint-disable react-hooks/immutability */
 import React, { useState, useEffect } from 'react';
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 const testimonials = [
   {
@@ -81,14 +82,16 @@ export default function TestimonialsSection() {
       {/* Floating profile images in background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         {testimonials.map((testimonial, i) => (
-          <img
+          <Image
             key={i}
             src={testimonial.image}
             alt=""
+            width={128}
+            height={128}
             className="absolute w-20 h-20 md:w-32 md:h-32 rounded-full object-cover"
             style={{
-              top: `${Math.random() * 80 + 10}%`,
-              left: `${Math.random() * 80 + 10}%`,
+              top: `${((i * 31.7) % 80) + 10}%`,
+              left: `${((i * 43.3) % 80) + 10}%`,
               animation: `float ${5 + i * 2}s ease-in-out infinite`,
               animationDelay: `${i * 0.5}s`,
             }}
