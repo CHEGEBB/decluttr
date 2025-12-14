@@ -19,8 +19,7 @@
 - **Tailwind CSS** - Styling
 - **Framer Motion** - Smooth animations
 - **Lucide React** - Beautiful icons
-- **React Hook Form** - Form handling
-- **Zod** - Form validation
+
 
 ### Backend (Separate Repository)
 - **Node.js & Express** - API server
