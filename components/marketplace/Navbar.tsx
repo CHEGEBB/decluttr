@@ -3,7 +3,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingCart, MessageCircle, User, LogOut, Menu, Home, Store, Package, Phone } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, ShoppingCart, MessageCircle, User, LogOut, Menu, Home, Store, Package, Phone, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
 interface NavbarProps {
@@ -14,6 +15,9 @@ interface NavbarProps {
 export function Navbar({ cartCount, onSearch }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const router = useRouter();
 
   const handleSearch = () => {
     onSearch(searchQuery);
@@ -25,6 +29,16 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
     }
   };
 
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    
+    // Simulate logout process
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Navigate to login page
+    router.push('/login');
+  };
+
   const navItems = [
     { label: 'Home', href: '/main/marketplace', icon: Home },
     { label: 'Shop', href: '/main/shop', icon: Store },
@@ -33,6 +47,37 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
 
   return (
     <>
+      {/* Logout Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black/80 bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+            {isLoggingOut ? (
+              <>
+                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Loader2 className="w-8 h-8 text-red-600 animate-spin" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Logging Out...</h3>
+                <p className="text-gray-600">Please wait while we end your session</p>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <LogOut className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Session Ended</h3>
+                <p className="text-gray-600 mb-6">You have been successfully logged out</p>
+                <button
+                  onClick={handleLogout}
+                  className="w-full bg-red-600 text-white font-semibold py-3 rounded-xl hover:bg-red-700 transition-colors"
+                >
+                  Continue to Login
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden" onClick={() => setMobileMenuOpen(false)}>
@@ -76,7 +121,13 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
                     <User className="w-5 h-5 mr-3" />
                     Profile
                   </Link>
-                  <button className="flex items-center text-gray-700 hover:text-red-600 py-2 w-full">
+                  <button 
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setShowLogoutModal(true);
+                    }}
+                    className="flex items-center text-gray-700 hover:text-red-600 py-2 w-full"
+                  >
                     <LogOut className="w-5 h-5 mr-3" />
                     Logout
                   </button>
@@ -178,7 +229,10 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
                 <span className="font-semibold">Profile</span>
               </Link>
               
-              <button className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors">
+              <button 
+                onClick={() => setShowLogoutModal(true)}
+                className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
+              >
                 <LogOut className="w-6 h-6" />
                 <span className="font-semibold">Logout</span>
               </button>

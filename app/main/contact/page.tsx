@@ -12,6 +12,14 @@ import {
 import { InfiniteMarquee } from '@/components/marketplace/InfiniteMarquee';
 
 export default function ContactPage() {
+
+  const handleSell = () => {
+    window.location.href = '/main/profile';
+  }
+
+  const handleBrowse = () => {
+    window.location.href = '/main/marketplace';
+  }
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
               <InfiniteMarquee />
@@ -44,10 +52,10 @@ export default function ContactPage() {
               to create a more sustainable future.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-100 transition-all">
+              <button className="px-8 py-3 bg-white text-gray-900 font-bold rounded-xl cursor-pointer hover:bg-emerald-400 hover:text-white transition-all" onClick={handleSell}>
                 Start Selling Now
               </button>
-              <button className="px-8 py-3 bg-transparent border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-all">
+              <button className="px-8 py-3 bg-transparent border-2 border-white text-white cursor-pointer font-bold rounded-xl hover:bg-red-400 transition-all" onClick={handleBrowse}>
                 Browse Products
               </button>
             </div>
