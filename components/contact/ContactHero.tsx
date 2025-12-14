@@ -1,10 +1,23 @@
 'use client';
 
 import { MessageCircle, Mail, Phone, MapPin, Clock } from 'lucide-react';
+import Image from 'next/image';
 
 const ContactHero = () => {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-gray-900 to-black text-white">
+    <div className="relative overflow-hidden bg-gradient-to-r from-gray-900/40 to-black/40 text-white">
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <Image
+          src="https://images.unsplash.com/photo-1596524430615-b46475ddff6e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Contact background"
+          fill
+          className="object-cover opacity-20"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-red-900/65 to-gray-950/70" />
+      </div>
+      
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:30px_30px]" />
       
@@ -40,20 +53,17 @@ const ContactHero = () => {
                 <div className="text-2xl md:text-3xl font-black text-red-500">98%</div>
                 <div className="text-sm text-gray-300">Satisfaction</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-black text-red-500">5K+</div>
-                <div className="text-sm text-gray-300">Users Helped</div>
-              </div>
+              
             </div>
           </div>
           
           {/* Right Content - Quick Contact */}
-          <div className="lg:w-1/2 bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+          <div className="lg:w-1/2rounded-2xl p-6 border border-white/20">
             <h3 className="text-xl font-bold mb-4">Quick Contact</h3>
             
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
@@ -63,7 +73,7 @@ const ContactHero = () => {
               </div>
               
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
@@ -73,7 +83,7 @@ const ContactHero = () => {
               </div>
               
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
@@ -83,7 +93,7 @@ const ContactHero = () => {
               </div>
               
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
@@ -101,6 +111,11 @@ const ContactHero = () => {
           </div>
         </div>
       </div>
+      
+      {/* Animated floating elements */}
+      <div className="absolute top-20 left-10 w-20 h-20 bg-red-500/10 rounded-full blur-xl animate-pulse" />
+      <div className="absolute bottom-20 right-10 w-32 h-32 bg-blue-500/10 rounded-full blur-xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-orange-500/10 rounded-full blur-xl animate-pulse" style={{ animationDelay: '2s' }} />
     </div>
   );
 };

@@ -107,7 +107,7 @@ const ContactForm = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                    className="w-full px-4 py-3 border text-gray-400 placeholder:text-gray-400 border-gray-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -126,7 +126,7 @@ const ContactForm = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                    className="w-full px-4 py-3 border text-gray-400 placeholder:text-gray-400 border-gray-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -146,7 +146,7 @@ const ContactForm = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                     placeholder="+254 712 345 678"
                   />
                 </div>
@@ -164,7 +164,7 @@ const ContactForm = () => {
                     value={formData.category}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 bg-white appearance-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 bg-white appearance-none"
                   >
                     <option value="">Select a category</option>
                     {categories.map((category, index) => (
@@ -185,7 +185,7 @@ const ContactForm = () => {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                   placeholder="Brief description of your inquiry"
                 />
               </div>
@@ -201,7 +201,7 @@ const ContactForm = () => {
                   onChange={handleChange}
                   required
                   rows={6}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 text-gray-400 placeholder:text-gray-400 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 resize-none"
                   placeholder="Please provide details about your inquiry..."
                 />
               </div>

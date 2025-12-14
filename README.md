@@ -179,8 +179,8 @@ decluttr/
     - Price (if Resale)
   - "Add Product" button saves item
 
-### 9. **User Dashboard** (`/dashboard`)
-- **Route:** `app/(main)/dashboard/page.tsx`
+### 9. **User Dashboard** (`/profile`)
+- **Route:** `app/(main)/profile/page.tsx`
 - **Access:** Authenticated users
 - **Features:**
   - **Two-column layout:**

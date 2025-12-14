@@ -61,9 +61,9 @@ const ContactInfo = () => {
             return (
               <div 
                 key={index}
-                className="group bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="group bg-white  shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
-                <div className={`w-12 h-12 bg-gradient-to-r ${feature.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                <div className={`w-12 h-12 bg-gradient-to-r ${feature.color} rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">{feature.title}</h3>
@@ -73,25 +73,7 @@ const ContactInfo = () => {
           })}
         </div>
         
-        {/* Stats */}
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="text-center">
-            <div className="text-3xl md:text-4xl font-black text-gray-900 mb-2">10,000+</div>
-            <div className="text-sm text-gray-600">Happy Users</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl md:text-4xl font-black text-gray-900 mb-2">50,000+</div>
-            <div className="text-sm text-gray-600">Items Listed</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl md:text-4xl font-black text-gray-900 mb-2">95%</div>
-            <div className="text-sm text-gray-600">Satisfaction Rate</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl md:text-4xl font-black text-gray-900 mb-2">24/7</div>
-            <div className="text-sm text-gray-600">Customer Support</div>
-          </div>
-        </div>
+       
       </div>
     </div>
   );
