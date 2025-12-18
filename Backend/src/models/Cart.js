@@ -24,7 +24,7 @@ const cartSchema = new mongoose.Schema({
 
 cartSchema.index({ user: 1 }, { unique: true });
 
-cartSchema.pre('save', function(next) {
+cartSchema.pre('save', async function() {
   const seen = new Set();
   this.items = this.items.filter(item => {
     const productId = item.product.toString();
@@ -34,7 +34,6 @@ cartSchema.pre('save', function(next) {
     seen.add(productId);
     return true; 
   });
-  next();
 });
 
 module.exports = mongoose.model('Cart', cartSchema);

@@ -164,34 +164,70 @@ exports.sendMessage = async (req, res) => {
 
 exports.markAsRead = async (req, res) => {
   try {
-    const message = await Message.findById(req.params.id);
-
-    if (!message) {
+    const { conversationId } = req.params;
+    const userId = req.user._id;
+    if (!conversationId || !conversationId.includes('_')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid conversation ID format'
+      });
+    }
+    const allMessages = await Message.find({ conversationId });
+    
+    if (allMessages.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'Message not found'
+        message: 'Conversation not found'
       });
     }
 
-    if (message.receiver.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized'
-      });
-    }
+    const unreadMessages = await Message.find({
+      conversationId: conversationId,
+      receiver: userId,
+      isRead: false
+    });
 
-    message.isRead = true;
-    await message.save();
+    allMessages.forEach((msg, index) => {
+      console.log(`Message ${index + 1}:`, {
+        sender: msg.sender.toString(),
+        receiver: msg.receiver.toString(),
+        isRead: msg.isRead,
+        isCurrentUserReceiver: msg.receiver.toString() === userId.toString()
+      });
+    });
+
+    const result = await Message.updateMany(
+      {
+        conversationId: conversationId,
+        receiver: userId,
+        isRead: false
+      },
+      {
+        $set: { isRead: true }
+      }
+    );
 
     res.status(200).json({
       success: true,
-      message: 'Message marked as read',
-      data: message
+      message: result.modifiedCount > 0 
+        ? `${result.modifiedCount} message(s) marked as read` 
+        : 'No unread messages to mark',
+      data: {
+        modifiedCount: result.modifiedCount,
+        conversationId: conversationId,
+        debug: {
+          totalMessages: allMessages.length,
+          unreadForYou: unreadMessages.length,
+          yourUserId: userId.toString()
+        }
+      }
     });
+
   } catch (error) {
+    console.error('Mark as read error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to mark message as read',
+      message: 'Failed to mark messages as read',
       error: error.message
     });
   }

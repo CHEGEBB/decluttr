@@ -1,5 +1,26 @@
 const mongoose = require('mongoose');
 
+const paymentSchema = new mongoose.Schema({
+  checkoutRequestID: String,
+  merchantRequestID: String,
+  amount: {
+    type: Number,
+    required: true
+  },
+  phoneNumber: String,
+  mpesaReceiptNumber: String,
+  status: {
+    type: String,
+    enum: ['pending', 'completed', 'failed', 'cancelled'],
+    default: 'pending'
+  },
+  transactionDate: Date,
+  initiatedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, { _id: true });
+
 const orderSchema = new mongoose.Schema({
   buyer: {
     type: mongoose.Schema.Types.ObjectId,
@@ -47,14 +68,12 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  
+  payment: paymentSchema,
+ 
   paymentStatus: {
     type: String,
     enum: ['pending', 'completed', 'failed'],
-    default: 'pending'
-  },
-  orderStatus: {
-    type: String,
-    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
     default: 'pending'
   },
   transactionId: {
@@ -65,6 +84,12 @@ const orderSchema = new mongoose.Schema({
   },
   paymentDate: {
     type: Date
+  },
+  
+  orderStatus: {
+    type: String,
+    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+    default: 'pending'
   }
 }, {
   timestamps: true
@@ -72,5 +97,6 @@ const orderSchema = new mongoose.Schema({
 
 orderSchema.index({ buyer: 1, createdAt: -1 });
 orderSchema.index({ 'items.seller': 1, createdAt: -1 });
+orderSchema.index({ 'payment.checkoutRequestID': 1 });
 
 module.exports = mongoose.model('Order', orderSchema);

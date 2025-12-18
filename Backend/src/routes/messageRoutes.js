@@ -13,6 +13,6 @@ router.use(protect);
 router.get('/conversations', getConversations);
 router.get('/conversation/:userId', getConversation);
 router.post('/send', sendMessage);
-router.put('/:id/read', markAsRead);
+router.put('/:conversationId/read', markAsRead);
 
 module.exports = router;

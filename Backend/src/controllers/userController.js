@@ -54,27 +54,42 @@ exports.getDashboard = async (req, res) => {
   }
 };
 
-exports.updateProfile = async (req, res) => {
+exports.getMyProfile = async (req, res) => {
   try {
-    const { name, location, phoneNumber } = req.body;
+    const user = await User.findById(req.user._id).select('-password');
 
-    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
 
-    if (name) user.name = name;
-    if (location) user.location = location;
-    if (phoneNumber) user.phoneNumber = phoneNumber;
-
-    await user.save();
+    const products = await Product.find({ 
+      seller: user._id,
+      isVerified: true
+    }).limit(20);
 
     res.status(200).json({
       success: true,
-      message: 'Profile updated successfully',
-      data: user
+      data: {
+        user: {
+          _id: user._id,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          location: user.location,
+          totalExchanges: user.totalExchanges,
+          ratings: user.ratings,
+          createdAt: user.createdAt
+        },
+        products
+      }
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to update profile',
+      message: 'Failed to fetch profile',
       error: error.message
     });
   }
@@ -82,8 +97,17 @@ exports.updateProfile = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.params.username })
-      .select('-password');
+    const { username } = req.params;
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username is required'
+      });
+    }
+
+    const user = await User.findOne({ username: username })
+      .select('-password -email'); 
 
     if (!user) {
       return res.status(404).json({
@@ -96,25 +120,74 @@ exports.getUserProfile = async (req, res) => {
       seller: user._id,
       isVerified: true,
       status: 'available'
-    }).limit(20);
+    })
+    .select('name price images category listingType createdAt')
+    .limit(20)
+    .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
       data: {
         user: {
+          _id: user._id,
           name: user.name,
           username: user.username,
           location: user.location,
           totalExchanges: user.totalExchanges,
-          ratings: user.ratings
+          ratings: user.ratings,
+          createdAt: user.createdAt
         },
-        products
+        products,
+        productCount: products.length
       }
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch user profile',
+      error: error.message
+    });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, location, bio } = req.body;
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    if (name) user.name = name;
+    if (location) user.location = location;
+    if (bio !== undefined) user.bio = bio;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: {
+        user: {
+          _id: user._id,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          location: user.location,
+          bio: user.bio,
+          totalExchanges: user.totalExchanges,
+          ratings: user.ratings
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update profile',
       error: error.message
     });
   }
