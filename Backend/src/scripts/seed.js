@@ -10,7 +10,7 @@ const mockProducts = [
     description: 'High-quality vintage leather jacket in excellent condition. Perfect for fashion enthusiasts looking for a timeless piece.',
     category: 'Clothes',
     listingType: 'resale',
-    price: 12500,
+    price: 4500,
     condition: 'Excellent',
     location: 'Nairobi',
     brand: 'Leather Craft',
@@ -48,7 +48,7 @@ const mockProducts = [
     description: 'iPhone 12 Pro in good working condition. 256GB storage. Comes with original box and charger.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 85000,
+    price: 75000,
     condition: 'Good',
     location: 'Nairobi',
     brand: 'Apple',
@@ -69,7 +69,7 @@ const mockProducts = [
     description: 'Brand new Nike Air Max 270 React shoes. Never worn, original box included.',
     category: 'Shoes',
     listingType: 'resale',
-    price: 13500,
+    price: 9500,
     condition: 'New',
     location: 'Kisumu',
     brand: 'Nike',
@@ -90,7 +90,7 @@ const mockProducts = [
     description: 'Modern wooden study desk in excellent condition. Perfect for home office or study room.',
     category: 'Furniture',
     listingType: 'resale',
-    price: 28000,
+    price: 15000,
     condition: 'Excellent',
     location: 'Nairobi',
     material: 'Wood',
@@ -125,7 +125,7 @@ const mockProducts = [
     description: 'Collection of popular business and self-help books. Great for students and professionals.',
     category: 'Books',
     listingType: 'resale',
-    price: 4200,
+    price: 2800,
     condition: 'Fair',
     location: 'Eldoret',
     image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&h=800&fit=crop',
@@ -140,7 +140,7 @@ const mockProducts = [
     description: 'Samsung Galaxy Watch 5 Pro in like new condition. GPS, fitness tracking, and more.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 35000,
+    price: 28000,
     condition: 'Like New',
     location: 'Nairobi',
     brand: 'Samsung',
@@ -158,7 +158,7 @@ const mockProducts = [
     description: 'Premium ergonomic office chair with leather upholstery. Adjustable height and lumbar support.',
     category: 'Furniture',
     listingType: 'resale',
-    price: 42000,
+    price: 28000,
     condition: 'Excellent',
     location: 'Mombasa',
     material: 'Leather',
@@ -195,7 +195,7 @@ const mockProducts = [
     description: 'Brand new MacBook Pro 13" with M2 chip. Perfect for professionals and creatives.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 175000,
+    price: 145000,
     condition: 'New',
     location: 'Nairobi',
     brand: 'Apple',
@@ -214,7 +214,7 @@ const mockProducts = [
     description: 'Premium quality winter coat in excellent condition. Warm and stylish.',
     category: 'Clothes',
     listingType: 'resale',
-    price: 14500,
+    price: 8500,
     condition: 'Excellent',
     location: 'Kisumu',
     size: 'L',
@@ -230,7 +230,7 @@ const mockProducts = [
     description: 'Classic Ray-Ban Aviator sunglasses in like new condition. Includes original case.',
     category: 'Accessories',
     listingType: 'resale',
-    price: 15200,
+    price: 12500,
     condition: 'Like New',
     location: 'Nairobi',
     brand: 'Ray-Ban',
@@ -248,7 +248,7 @@ const mockProducts = [
     description: 'Brand new Apple Watch Series 9 with GPS and cellular. All health and fitness features.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 68000,
+    price: 58000,
     condition: 'New',
     location: 'Nairobi',
     brand: 'Apple',
@@ -282,12 +282,12 @@ const mockProducts = [
     description: 'Authentic Gucci GG Marmont handbag in excellent condition. Comes with authentication card.',
     category: 'Accessories',
     listingType: 'resale',
-    price: 85000,
+    price: 65000,
     condition: 'Excellent',
     location: 'Nairobi',
     brand: 'Gucci',
     model: 'GG Marmont',
-    image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&h=800&fit=crop',
+    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8R3VjY2klMjBHRyUyME1hcm1vbnQlMjBIYW5kYmFnfGVufDB8fDB8fHww',
     tags: ['gucci', 'handbag', 'luxury', 'designer'],
     specifications: {
       'Brand': 'Gucci',
@@ -300,7 +300,7 @@ const mockProducts = [
     description: 'Brand new Nike React Infinity Run Flyknit 3 running shoes. Perfect for long distance running.',
     category: 'Shoes',
     listingType: 'resale',
-    price: 18200,
+    price: 13500,
     condition: 'New',
     location: 'Nairobi',
     brand: 'Nike',
@@ -319,7 +319,7 @@ const mockProducts = [
     description: 'JBL PartyBox 310 portable Bluetooth speaker with light show. Perfect for parties and events.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 25500,
+    price: 22000,
     condition: 'Like New',
     location: 'Mombasa',
     brand: 'JBL',
@@ -337,7 +337,7 @@ const mockProducts = [
     description: 'Durable Casio G-Shock digital watch in good condition. Water resistant and shock proof.',
     category: 'Accessories',
     listingType: 'resale',
-    price: 8500,
+    price: 6500,
     condition: 'Good',
     location: 'Eldoret',
     brand: 'Casio',
@@ -359,7 +359,7 @@ const mockProducts = [
     condition: 'Fair',
     location: 'Kisumu',
     material: 'Leather',
-    image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&h=800&fit=crop',
+    image: 'https://images.unsplash.com/photo-1662261896014-f8bcd9d38e65?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8RGVzaWduZXIlMjBMZWF0aGVyJTIwV2FsbGV0fGVufDB8fDB8fHww',
     tags: ['wallet', 'leather', 'accessories'],
     specifications: {
       'Material': 'Genuine Leather',
@@ -371,7 +371,7 @@ const mockProducts = [
     description: 'Brand new Sony WH-1000XM5 wireless noise-cancelling headphones. Industry-leading sound quality.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 45000,
+    price: 38000,
     condition: 'New',
     location: 'Nairobi',
     brand: 'Sony',
@@ -390,7 +390,7 @@ const mockProducts = [
     description: 'Collection of premium linen shirts in various colors. Perfect for warm weather.',
     category: 'Clothes',
     listingType: 'resale',
-    price: 7800,
+    price: 5500,
     condition: 'Good',
     location: 'Nairobi',
     material: 'Linen',
@@ -407,7 +407,7 @@ const mockProducts = [
     description: 'Samsung Galaxy S23 Ultra in like new condition. 256GB storage, excellent camera.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 125000,
+    price: 110000,
     condition: 'Like New',
     location: 'Nairobi',
     brand: 'Samsung',
@@ -425,7 +425,7 @@ const mockProducts = [
     description: 'Premium leather boots in excellent condition. Perfect for any occasion.',
     category: 'Shoes',
     listingType: 'resale',
-    price: 21500,
+    price: 16500,
     condition: 'Excellent',
     location: 'Mombasa',
     material: 'Leather',
@@ -443,7 +443,7 @@ const mockProducts = [
     description: 'Brand new Canon EOS R5 professional mirrorless camera. Perfect for photography enthusiasts.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 285000,
+    price: 245000,
     condition: 'New',
     location: 'Nairobi',
     brand: 'Canon',
@@ -462,10 +462,10 @@ const mockProducts = [
     description: 'Premium designer backpack in excellent condition. Multiple compartments and laptop sleeve.',
     category: 'Accessories',
     listingType: 'resale',
-    price: 18500,
+    price: 14500,
     condition: 'Excellent',
     location: 'Nairobi',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=800&fit=crop',
+    image: 'https://images.unsplash.com/photo-1622560481979-f5b0174242a0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8RGVzaWduZXIlMjBCYWNrcGFja3xlbnwwfHwwfHx8MA%3D%3D',
     tags: ['backpack', 'bag', 'accessories', 'travel'],
     specifications: {
       'Laptop Compartment': 'Up to 15 inch',
@@ -478,7 +478,7 @@ const mockProducts = [
     description: 'ASUS ROG gaming laptop in like new condition. Perfect for gaming and content creation.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 195000,
+    price: 165000,
     condition: 'Like New',
     location: 'Nairobi',
     brand: 'ASUS',
@@ -512,7 +512,7 @@ const mockProducts = [
     description: 'Brand new electric standing desk with height adjustment. Perfect for home office.',
     category: 'Furniture',
     listingType: 'resale',
-    price: 52000,
+    price: 42000,
     condition: 'New',
     location: 'Nairobi',
     image: 'https://images.unsplash.com/photo-1762681829669-2cd09f21ad7a?w=800&auto=format&fit=crop&q=60',
@@ -528,10 +528,10 @@ const mockProducts = [
     description: 'Premium eco-friendly yoga mat with carrying strap. Non-slip surface.',
     category: 'Sports',
     listingType: 'resale',
-    price: 4500,
+    price: 3200,
     condition: 'Excellent',
     location: 'Nairobi',
-    image: 'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=800&h=800&fit=crop',
+    image: 'https://images.unsplash.com/photo-1758599881359-a3f089f33502?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fFlvZ2ElMjBNYXQlMjBQcmVtaXVtfGVufDB8fDB8fHww',
     tags: ['yoga', 'fitness', 'sports', 'exercise'],
     specifications: {
       'Material': 'Eco-friendly TPE',
@@ -544,7 +544,7 @@ const mockProducts = [
     description: 'Samsung 55" 4K Smart TV in like new condition. Crystal clear picture quality.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 125000,
+    price: 105000,
     condition: 'Like New',
     location: 'Mombasa',
     brand: 'Samsung',
@@ -565,7 +565,7 @@ const mockProducts = [
     price: 0,
     condition: 'Good',
     location: 'Kisumu',
-    image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&h=800&fit=crop',
+    image: 'https://images.unsplash.com/photo-1561404672-0c8d7f5f6824?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fERpbm5lcndhcmUlMjBTZXQlMjAxMiUyMFBpZWNlc3xlbnwwfHwwfHx8MA%3D%3D',
     tags: ['dinnerware', 'kitchen', 'home', 'dining'],
     specifications: {
       'Pieces': '12 (4 plates, 4 bowls, 4 mugs)',
@@ -577,7 +577,7 @@ const mockProducts = [
     description: 'Trek mountain bike in excellent condition. Perfect for trails and off-road adventures.',
     category: 'Sports',
     listingType: 'resale',
-    price: 85000,
+    price: 65000,
     condition: 'Excellent',
     location: 'Nairobi',
     brand: 'Trek',
@@ -594,7 +594,7 @@ const mockProducts = [
     description: 'Collection of popular cookbooks featuring various cuisines from around the world.',
     category: 'Books',
     listingType: 'resale',
-    price: 6800,
+    price: 4800,
     condition: 'Good',
     location: 'Nairobi',
     image: 'https://images.unsplash.com/photo-1565951556573-1beb896beb26?w=800&auto=format&fit=crop&q=60',
@@ -609,10 +609,10 @@ const mockProducts = [
     description: 'Professional high-speed blender in like new condition. Perfect for smoothies and more.',
     category: 'Home',
     listingType: 'resale',
-    price: 12500,
+    price: 9500,
     condition: 'Like New',
     location: 'Nairobi',
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=800&fit=crop',
+    image: 'https://plus.unsplash.com/premium_photo-1718043036199-d98bef36af46?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8QmxlbmRlcnxlbnwwfHwwfHx8MA%3D%3D',
     tags: ['blender', 'kitchen', 'appliance', 'home'],
     specifications: {
       'Power': '1000W',
@@ -625,7 +625,7 @@ const mockProducts = [
     description: 'Brand new PlayStation 5 gaming console with disc drive. Includes controller.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 95000,
+    price: 85000,
     condition: 'New',
     location: 'Nairobi',
     brand: 'Sony',
@@ -643,7 +643,7 @@ const mockProducts = [
     description: 'Collection of premium designer jeans in various styles. Excellent condition.',
     category: 'Clothes',
     listingType: 'resale',
-    price: 14500,
+    price: 10500,
     condition: 'Excellent',
     location: 'Nairobi',
     image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=800&h=800&fit=crop',
@@ -659,10 +659,10 @@ const mockProducts = [
     description: 'Deluxe espresso coffee machine in like new condition. Perfect for coffee enthusiasts.',
     category: 'Home',
     listingType: 'resale',
-    price: 32500,
+    price: 24500,
     condition: 'Like New',
     location: 'Nairobi',
-    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&h=800&fit=crop',
+    image: 'https://images.unsplash.com/photo-1642466075403-cc922174becf?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fENvZmZlZSUyME1hY2hpbmUlMjBEZWx1eGV8ZW58MHx8MHx8fDA%3D',
     tags: ['coffee', 'espresso', 'machine', 'home'],
     specifications: {
       'Type': 'Espresso Machine',
@@ -675,7 +675,7 @@ const mockProducts = [
     description: 'Brand new professional tennis racket. Perfect for competitive play.',
     category: 'Sports',
     listingType: 'resale',
-    price: 18500,
+    price: 12500,
     condition: 'New',
     location: 'Nairobi',
     image: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800&h=800&fit=crop',
@@ -706,7 +706,7 @@ const mockProducts = [
     description: 'Yamaha digital piano in excellent condition. 88 weighted keys, perfect for learning.',
     category: 'Entertainment',
     listingType: 'resale',
-    price: 125000,
+    price: 95000,
     condition: 'Excellent',
     location: 'Nairobi',
     brand: 'Yamaha',
@@ -723,7 +723,7 @@ const mockProducts = [
     description: 'Fitness tracker band with heart rate monitoring and step counting. Good condition.',
     category: 'Electronics',
     listingType: 'resale',
-    price: 8500,
+    price: 6500,
     condition: 'Good',
     location: 'Nairobi',
     image: 'https://images.unsplash.com/photo-1576243345690-4e4b79b63288?w=800&h=800&fit=crop',
@@ -754,7 +754,7 @@ const mockProducts = [
     description: 'Four-person camping tent in excellent condition. Waterproof and easy to set up.',
     category: 'Sports',
     listingType: 'resale',
-    price: 28500,
+    price: 22500,
     condition: 'Excellent',
     location: 'Nairobi',
     image: 'https://images.unsplash.com/photo-1703304862580-206bdf82fbc8?w=800&auto=format&fit=crop&q=60',
@@ -770,7 +770,7 @@ const mockProducts = [
     description: 'Authentic Rolex watch in brand new condition. Comes with box and papers.',
     category: 'Accessories',
     listingType: 'resale',
-    price: 985000,
+    price: 850000,
     condition: 'New',
     location: 'Nairobi',
     brand: 'Rolex',
@@ -788,7 +788,7 @@ const mockProducts = [
     description: 'Brand new professional kitchen knife set with 8 pieces. Perfect for home chefs.',
     category: 'Home',
     listingType: 'resale',
-    price: 18500,
+    price: 12500,
     condition: 'New',
     location: 'Nairobi',
     image: 'https://images.unsplash.com/photo-1589071634465-75d7ce737fa8?w=800&auto=format&fit=crop&q=60',
@@ -804,10 +804,10 @@ const mockProducts = [
     description: 'Convertible sofa bed in like new condition. Perfect for small spaces.',
     category: 'Furniture',
     listingType: 'resale',
-    price: 125000,
+    price: 95000,
     condition: 'Like New',
     location: 'Nairobi',
-    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=800&fit=crop',
+    image: 'https://images.unsplash.com/photo-1669004753992-cfe24bd8410b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8U29mYSUyMEJlZCUyMENvbnZlcnRpYmxlfGVufDB8fDB8fHww',
     tags: ['sofa', 'furniture', 'bed', 'convertible'],
     specifications: {
       'Type': 'Sofa Bed',
@@ -820,7 +820,7 @@ const mockProducts = [
     description: 'Premium laptop bag in excellent condition. Multiple compartments and padded protection.',
     category: 'Accessories',
     listingType: 'resale',
-    price: 12500,
+    price: 9500,
     condition: 'Excellent',
     location: 'Nairobi',
     image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=800&fit=crop',
@@ -829,6 +829,559 @@ const mockProducts = [
       'Laptop Size': 'Up to 15.6 inch',
       'Material': 'Premium Nylon',
       'Compartments': 'Multiple'
+    }
+  },
+  {
+    name: 'Womens Winter Boots',
+    description: 'Stylish winter boots for women in excellent condition. Waterproof and warm.',
+    category: 'Shoes',
+    listingType: 'resale',
+    price: 7800,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    size: '38',
+    image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&h=800&fit=crop',
+    tags: ['boots', 'winter', 'women', 'shoes'],
+    specifications: {
+      'Size': '38',
+      'Material': 'Synthetic Leather',
+      'Waterproof': 'Yes'
+    }
+  },
+  {
+    name: 'Childrens Story Books',
+    description: 'Collection of childrens story books in good condition. Perfect for young readers.',
+    category: 'Books',
+    listingType: 'donation',
+    price: 0,
+    condition: 'Good',
+    location: 'Mombasa',
+    image: 'https://images.unsplash.com/photo-1589998059171-988d887df646?w=800&h=800&fit=crop',
+    tags: ['children', 'books', 'stories', 'education'],
+    specifications: {
+      'Age Range': '3-8 years',
+      'Quantity': '12 books'
+    }
+  },
+  {
+    name: 'Bluetooth Earbuds Wireless',
+    description: 'Wireless Bluetooth earbuds in like new condition. Good battery life and sound quality.',
+    category: 'Electronics',
+    listingType: 'resale',
+    price: 4500,
+    condition: 'Like New',
+    location: 'Nairobi',
+    brand: 'Xiaomi',
+    image: 'https://images.unsplash.com/photo-1715371941196-c4c8750f270f?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Ymx1ZXR0b3RoJTIwZWFyYnVkc3xlbnwwfHwwfHx8MA%3D%3D',
+    tags: ['earbuds', 'bluetooth', 'wireless', 'audio'],
+    specifications: {
+      'Battery Life': '6 hours',
+      'Charging Case': 'Yes',
+      'Water Resistant': 'IPX4'
+    }
+  },
+  {
+    name: 'Office Filing Cabinet',
+    description: 'Two-drawer office filing cabinet in good condition. Perfect for organizing documents.',
+    category: 'Furniture',
+    listingType: 'resale',
+    price: 12000,
+    condition: 'Good',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=800&fit=crop',
+    tags: ['cabinet', 'office', 'storage', 'furniture'],
+    specifications: {
+      'Drawers': '2',
+      'Material': 'Metal',
+      'Lockable': 'Yes'
+    }
+  },
+  {
+    name: 'Mens Formal Shoes',
+    description: 'Mens formal leather shoes in excellent condition. Perfect for office or special occasions.',
+    category: 'Shoes',
+    listingType: 'resale',
+    price: 6800,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    size: '42',
+    image: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=800&h=800&fit=crop',
+    tags: ['shoes', 'formal', 'leather', 'men'],
+    specifications: {
+      'Size': '42',
+      'Material': 'Genuine Leather',
+      'Color': 'Black'
+    }
+  },
+  {
+    name: 'Electric Kettle',
+    description: 'Electric kettle in good working condition. Fast boiling, automatic shut-off.',
+    category: 'Home',
+    listingType: 'resale',
+    price: 2800,
+    condition: 'Good',
+    location: 'Kisumu',
+    image: 'https://images.unsplash.com/photo-1650940925927-f4a30c930a4d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8RWxlY3RyaWMlMjBLZXR0bGV8ZW58MHx8MHx8fDA%3D',
+    tags: ['kettle', 'kitchen', 'appliance', 'home'],
+    specifications: {
+      'Capacity': '1.7L',
+      'Power': '1500W',
+      'Material': 'Stainless Steel'
+    }
+  },
+  {
+    name: 'Basketball & Pump',
+    description: 'Official size basketball with air pump. Good condition, perfect for practice.',
+    category: 'Sports',
+    listingType: 'donation',
+    price: 0,
+    condition: 'Good',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=800&fit=crop',
+    tags: ['basketball', 'sports', 'outdoor', 'equipment'],
+    specifications: {
+      'Size': 'Official Size 7',
+      'Includes': 'Air Pump',
+      'Condition': 'Good'
+    }
+  },
+  {
+    name: 'Graphic Design Tablet',
+    description: 'Wacom graphic design tablet in excellent condition. Perfect for digital artists.',
+    category: 'Electronics',
+    listingType: 'resale',
+    price: 22000,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    brand: 'Wacom',
+    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=800&fit=crop',
+    tags: ['tablet', 'graphic', 'design', 'art'],
+    specifications: {
+      'Brand': 'Wacom',
+      'Active Area': '8.7 x 5.8 inch',
+      'Pressure Levels': '4096'
+    }
+  },
+  {
+    name: 'Kitchen Mixer Stand',
+    description: 'Kitchen stand mixer in like new condition. Multiple attachments included.',
+    category: 'Home',
+    listingType: 'resale',
+    price: 18500,
+    condition: 'Like New',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1758565810987-ca8d617ea7be?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8S2l0Y2hlbiUyME1peGVyJTIwU3RhbmR8ZW58MHx8MHx8fDA%3D',
+    tags: ['mixer', 'kitchen', 'appliance', 'baking'],
+    specifications: {
+      'Power': '300W',
+      'Attachments': '3 included',
+      'Bowl Capacity': '4.8L'
+    }
+  },
+  {
+    name: 'Travel Luggage Set',
+    description: '3-piece travel luggage set in good condition. Various sizes for different trips.',
+    category: 'Accessories',
+    listingType: 'resale',
+    price: 16500,
+    condition: 'Good',
+    location: 'Mombasa',
+    image: 'https://images.unsplash.com/photo-1672625912400-35f1f7bca79b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8VHJhdmVsJTIwTHVnZ2FnZSUyMFNldHxlbnwwfHwwfHx8MA%3D%3D',
+    tags: ['luggage', 'travel', 'bags', 'accessories'],
+    specifications: {
+      'Pieces': '3',
+      'Material': 'Polycarbonate',
+      'Wheels': 'Spinner Wheels'
+    }
+  },
+  {
+    name: 'Science Textbooks',
+    description: 'Collection of science textbooks for high school students. Various subjects.',
+    category: 'Books',
+    listingType: 'resale',
+    price: 4200,
+    condition: 'Fair',
+    location: 'Nakuru',
+    image: 'https://images.unsplash.com/photo-1725869973689-425c74f79a48?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2NpZW5jZSUyMHRleHRib29rc3xlbnwwfHwwfHx8MA%3D%3D',
+    tags: ['textbooks', 'science', 'education', 'school'],
+    specifications: {
+      'Subjects': 'Physics, Chemistry, Biology',
+      'Quantity': '6 books',
+      'Level': 'High School'
+    }
+  },
+  {
+    name: 'Gaming Mouse RGB',
+    description: 'RGB gaming mouse with programmable buttons. Excellent condition.',
+    category: 'Electronics',
+    listingType: 'resale',
+    price: 3800,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    brand: 'Logitech',
+    image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=800&h=800&fit=crop',
+    tags: ['gaming', 'mouse', 'computer', 'accessories'],
+    specifications: {
+      'Brand': 'Logitech',
+      'DPI': '16000',
+      'Buttons': '8 Programmable',
+      'RGB': 'Yes'
+    }
+  },
+  {
+    name: 'Bedside Table',
+    description: 'Wooden bedside table with drawer. Good condition, perfect for bedroom.',
+    category: 'Furniture',
+    listingType: 'resale',
+    price: 6800,
+    condition: 'Good',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1499933374294-4584851497cc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8QmVkc2lkZSUyMFRhYmxlfGVufDB8fDB8fHww',
+    tags: ['table', 'bedside', 'furniture', 'bedroom'],
+    specifications: {
+      'Material': 'Wood',
+      'Drawer': 'Yes',
+      'Dimensions': '50cm x 40cm x 45cm'
+    }
+  },
+  {
+    name: 'Womens Handbag Leather',
+    description: 'Genuine leather handbag for women in excellent condition. Multiple compartments.',
+    category: 'Accessories',
+    listingType: 'resale',
+    price: 8500,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&h=800&fit=crop',
+    tags: ['handbag', 'leather', 'women', 'accessories'],
+    specifications: {
+      'Material': 'Genuine Leather',
+      'Compartments': 'Multiple',
+      'Color': 'Brown'
+    }
+  },
+  {
+    name: 'Football Jersey Collection',
+    description: 'Collection of authentic football jerseys from various teams. Good condition.',
+    category: 'Clothes',
+    listingType: 'resale',
+    price: 4500,
+    condition: 'Good',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1662096909687-7c64cde3524b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fEZvb3RiYWxsJTIwSmVyc2V5JTIwQ29sbGVjdGlvbnxlbnwwfHwwfHx8MA%3D%3D',
+    tags: ['jerseys', 'football', 'sports', 'collection'],
+    specifications: {
+      'Quantity': '5 jerseys',
+      'Sizes': 'L-XL',
+      'Teams': 'Various'
+    }
+  },
+  {
+    name: 'External Hard Drive 2TB',
+    description: '2TB external hard drive in excellent condition. Perfect for backup and storage.',
+    category: 'Electronics',
+    listingType: 'resale',
+    price: 9500,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    brand: 'WD',
+    image: 'https://plus.unsplash.com/premium_photo-1723651280322-513220315969?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZXh0ZXJuYWwlMjBoYXJkJTIwZHJpdmV8ZW58MHx8MHx8fDA%3D',
+    tags: ['hard drive', 'storage', 'backup', 'computer'],
+    specifications: {
+      'Brand': 'Western Digital',
+      'Capacity': '2TB',
+      'Interface': 'USB 3.0'
+    }
+  },
+  {
+    name: 'Kitchen Storage Containers',
+    description: 'Set of glass kitchen storage containers with lids. Perfect for pantry organization.',
+    category: 'Home',
+    listingType: 'donation',
+    price: 0,
+    condition: 'Good',
+    location: 'Kisumu',
+    image: 'https://images.unsplash.com/photo-1763432128869-8ebe2630280d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8S2l0Y2hlbiUyMFN0b3JhZ2UlMjBDb250YWluZXJzfGVufDB8fDB8fHww',
+    tags: ['containers', 'kitchen', 'storage', 'home'],
+    specifications: {
+      'Pieces': '8 containers',
+      'Material': 'Glass',
+      'Lids': 'Silicone Sealed'
+    }
+  },
+  {
+    name: 'Running Shorts Collection',
+    description: 'Collection of running shorts in good condition. Various sizes and colors.',
+    category: 'Clothes',
+    listingType: 'resale',
+    price: 2800,
+    condition: 'Good',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=800&fit=crop',
+    tags: ['shorts', 'running', 'sports', 'athletic'],
+    specifications: {
+      'Quantity': '6 pairs',
+      'Sizes': 'M-L',
+      'Material': 'Polyester'
+    }
+  },
+  {
+    name: 'Desk Lamp LED',
+    description: 'LED desk lamp with adjustable brightness. Perfect for studying or working.',
+    category: 'Home',
+    listingType: 'resale',
+    price: 3500,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&h=800&fit=crop',
+    tags: ['lamp', 'desk', 'lighting', 'home'],
+    specifications: {
+      'Light Type': 'LED',
+      'Brightness': 'Adjustable',
+      'Color Temperature': 'Warm White'
+    }
+  },
+  {
+    name: 'Board Game Monopoly',
+    description: 'Classic Monopoly board game in good condition. All pieces included.',
+    category: 'Entertainment',
+    listingType: 'donation',
+    price: 0,
+    condition: 'Good',
+    location: 'Nakuru',
+    image: 'https://images.unsplash.com/photo-1640461470346-c8b56497850a?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    tags: ['board game', 'monopoly', 'family', 'games'],
+    specifications: {
+      'Game': 'Monopoly',
+      'Pieces': 'Complete Set',
+      'Age': '8+'
+    }
+  },
+  {
+    name: 'Wireless Keyboard',
+    description: 'Wireless keyboard with numeric pad. Good condition, long battery life.',
+    category: 'Electronics',
+    listingType: 'resale',
+    price: 4200,
+    condition: 'Good',
+    location: 'Nairobi',
+    brand: 'Logitech',
+    image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&h=800&fit=crop',
+    tags: ['keyboard', 'wireless', 'computer', 'accessories'],
+    specifications: {
+      'Brand': 'Logitech',
+      'Connection': 'Bluetooth',
+      'Battery Life': '24 months'
+    }
+  },
+  {
+    name: 'Yoga Blocks (2 pieces)',
+    description: 'Pair of yoga blocks in excellent condition. Perfect for yoga practice.',
+    category: 'Sports',
+    listingType: 'resale',
+    price: 1800,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=800&h=800&fit=crop',
+    tags: ['yoga', 'blocks', 'fitness', 'exercise'],
+    specifications: {
+      'Quantity': '2 blocks',
+      'Material': 'EVA Foam',
+      'Size': 'Standard'
+    }
+  },
+  {
+    name: 'Cookware Set Non-stick',
+    description: 'Non-stick cookware set in good condition. Includes pots and pans.',
+    category: 'Home',
+    listingType: 'resale',
+    price: 12500,
+    condition: 'Good',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1588279102558-dabc7b32d9b1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Q29va3dhcmUlMjBTZXQlMjBOb24tc3RpY2t8ZW58MHx8MHx8fDA%3D',
+    tags: ['cookware', 'kitchen', 'pots', 'pans'],
+    specifications: {
+      'Pieces': '5 pieces',
+      'Coating': 'Non-stick',
+      'Material': 'Aluminum'
+    }
+  },
+  {
+    name: 'Graphic Novels Collection',
+    description: 'Collection of popular graphic novels and comics. Good condition for readers.',
+    category: 'Books',
+    listingType: 'resale',
+    price: 5800,
+    condition: 'Good',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=800&h=800&fit=crop',
+    tags: ['graphic novels', 'comics', 'books', 'collection'],
+    specifications: {
+      'Quantity': '10 books',
+      'Genres': 'Superhero, Fantasy',
+      'Condition': 'Good'
+    }
+  },
+  {
+    name: 'Portable Power Bank',
+    description: '20000mAh power bank with fast charging. Excellent condition.',
+    category: 'Electronics',
+    listingType: 'resale',
+    price: 5500,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1614399113305-a127bb2ca893?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cG93ZXJiYW5rfGVufDB8fDB8fHww',
+    tags: ['power bank', 'charger', 'portable', 'electronics'],
+    specifications: {
+      'Capacity': '20000mAh',
+      'Ports': '2 USB, 1 Type-C',
+      'Fast Charge': 'Yes'
+    }
+  },
+  {
+    name: 'Throw Pillows Set',
+    description: 'Set of decorative throw pillows in excellent condition. Various patterns.',
+    category: 'Home',
+    listingType: 'resale',
+    price: 3800,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1638191376884-f371a22c719f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8VGhyb3clMjBQaWxsb3dzJTIwU2V0fGVufDB8fDB8fHww',
+    tags: ['pillows', 'decor', 'home', 'living room'],
+    specifications: {
+      'Quantity': '4 pillows',
+      'Size': '45x45cm',
+      'Material': 'Polyester'
+    }
+  },
+  {
+    name: 'Treadmill Home Use',
+    description: 'Home use treadmill in good working condition. Foldable for storage.',
+    category: 'Sports',
+    listingType: 'resale',
+    price: 55000,
+    condition: 'Good',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1723468353356-e18254cd8a63?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8VHJlYWRtaWxsJTIwSG9tZSUyMFVzZXxlbnwwfHwwfHx8MA%3D%3D',
+    tags: ['treadmill', 'fitness', 'exercise', 'home'],
+    specifications: {
+      'Motor': '2.0 HP',
+      'Max Speed': '12 km/h',
+      'Foldable': 'Yes'
+    }
+  },
+  {
+    name: 'Water Bottle Insulated',
+    description: 'Insulated stainless steel water bottle. Keeps drinks cold/hot for hours.',
+    category: 'Accessories',
+    listingType: 'resale',
+    price: 2500,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1585975766936-6eaae1596918?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8V2F0ZXIlMjBCb3R0bGUlMjBJbnN1bGF0ZWR8ZW58MHx8MHx8fDA%3D',
+    tags: ['water bottle', 'insulated', 'outdoor', 'accessories'],
+    specifications: {
+      'Capacity': '1L',
+      'Material': 'Stainless Steel',
+      'Insulation': '24 hours'
+    }
+  },
+  {
+    name: 'Textbooks University Level',
+    description: 'University level textbooks in various subjects. Good condition for students.',
+    category: 'Books',
+    listingType: 'resale',
+    price: 6800,
+    condition: 'Good',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1731983568664-9c1d8a87e7a2?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8VGV4dGJvb2tzJTIwVW5pdmVyc2l0eSUyMExldmVsfGVufDB8fDB8fHww',
+    tags: ['textbooks', 'university', 'education', 'academic'],
+    specifications: {
+      'Quantity': '8 books',
+      'Subjects': 'Engineering, Business',
+      'Level': 'University'
+    }
+  },
+  {
+    name: 'Gaming Chair Ergonomic',
+    description: 'Ergonomic gaming chair with lumbar support. Excellent condition.',
+    category: 'Furniture',
+    listingType: 'resale',
+    price: 28000,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1760278042167-2e42c883e087?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8R2FtaW5nJTIwQ2hhaXIlMjBFcmdvbm9taWN8ZW58MHx8MHx8fDA%3D',
+    tags: ['gaming chair', 'ergonomic', 'furniture', 'office'],
+    specifications: {
+      'Adjustable': 'Height, Armrests',
+      'Lumbar Support': 'Yes',
+      'Material': 'PU Leather'
+    }
+  },
+  {
+    name: 'Wall Clock Modern',
+    description: 'Modern wall clock in excellent condition. Silent movement, battery operated.',
+    category: 'Home',
+    listingType: 'resale',
+    price: 3200,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1765423587697-e2f0998b904d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8V2FsbCUyMENsb2NrJTIwTW9kZXJufGVufDB8fDB8fHww',
+    tags: ['clock', 'wall', 'decor', 'home'],
+    specifications: {
+      'Diameter': '40cm',
+      'Movement': 'Quartz',
+      'Battery': 'AA (included)'
+    }
+  },
+  {
+    name: 'Baby Clothes Bundle',
+    description: 'Bundle of baby clothes in good condition. Various sizes 0-12 months.',
+    category: 'Clothes',
+    listingType: 'donation',
+    price: 0,
+    condition: 'Good',
+    location: 'Nairobi',
+    image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&h=800&fit=crop',
+    tags: ['baby', 'clothes', 'infant', 'donation'],
+    specifications: {
+      'Quantity': '15 pieces',
+      'Sizes': '0-12 months',
+      'Gender': 'Unisex'
+    }
+  },
+  {
+    name: 'Computer Monitor 24"',
+    description: '24-inch computer monitor in excellent condition. Full HD resolution.',
+    category: 'Electronics',
+    listingType: 'resale',
+    price: 18500,
+    condition: 'Excellent',
+    location: 'Nairobi',
+    brand: 'Dell',
+    image: 'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=800&h=800&fit=crop',
+    tags: ['monitor', 'computer', 'display', 'electronics'],
+    specifications: {
+      'Brand': 'Dell',
+      'Size': '24 inch',
+      'Resolution': '1920x1080',
+      'Refresh Rate': '60Hz'
+    }
+  },
+  {
+    name: 'Gardening Tools Set',
+    description: 'Complete gardening tools set in good condition. Perfect for home gardening.',
+    category: 'Home',
+    listingType: 'resale',
+    price: 2800,
+    condition: 'Good',
+    location: 'Nakuru',
+    image: 'https://images.unsplash.com/photo-1705113998946-1eefc7961c24?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Z2FyZGVuaW5nJTIwdG9vbHMlMjBzZXR8ZW58MHx8MHx8fDA%3D',
+    tags: ['gardening', 'tools', 'outdoor', 'home'],
+    specifications: {
+      'Pieces': '8 tools',
+      'Includes': 'Trowel, Rake, Shears, etc.',
+      'Storage Bag': 'Yes'
     }
   }
 ];
@@ -884,7 +1437,7 @@ async function seedDatabase() {
   
       // Show summary
       console.log('\n📦 Seeded Products Summary:');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
       // Group by category
       const categories = {};
@@ -903,10 +1456,17 @@ async function seedDatabase() {
         });
       });
 
-      console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log(`\n✨ Total Products: ${insertedProducts.length}`);
       console.log(`💰 Resale Items: ${insertedProducts.filter(p => p.listingType === 'resale').length}`);
       console.log(`🎁 Donation Items: ${insertedProducts.filter(p => p.listingType === 'donation').length}`);
+      
+      // Calculate statistics
+      const totalValue = insertedProducts.reduce((sum, p) => sum + p.price, 0);
+      const avgPrice = Math.round(totalValue / insertedProducts.filter(p => p.price > 0).length);
+      console.log(`💵 Average Price (resale items): KES ${avgPrice.toLocaleString()}`);
+      console.log(`🏷️  Categories: ${Object.keys(categories).length}`);
+      console.log(`📍 Locations: ${[...new Set(insertedProducts.map(p => p.location))].join(', ')}`);
   
       // Disconnect from MongoDB
       await mongoose.disconnect();
