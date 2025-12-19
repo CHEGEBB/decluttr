@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// app/login/page.tsx
 'use client'
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import Image from 'next/image';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 const loginImages = [
   { url: 'https://images.unsplash.com/photo-1618220179428-22790b461013?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', text: 'Declutter Your Space, Empower Your Life' },
@@ -10,12 +14,14 @@ const loginImages = [
 ];
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('demo@decluttr.com');
-  const [password, setPassword] = useState('demo123');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  const { login, isLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,26 +30,27 @@ export default function LoginPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setError('');
-    setIsLoading(true);
+    
+    if (!identifier || !password) {
+      setError('Please enter both email/username and password');
+      return;
+    }
 
-    setTimeout(() => {
-      if (email === 'demo@decluttr.com' && password === 'demo123') {
-        window.location.href = '/main/marketplace';
-
-        setIsLoading(false);
-      } else {
-        setError('Invalid email or password');
-        setIsLoading(false);
-      }
-    }, 1000);
+    try {
+      await login({ identifier, password });
+      router.push('/main/marketplace');
+    } catch (err: any) {
+      setError(err.message || 'Invalid credentials');
+    }
   };
-const handleSignUp = ()=>{
-    window.location.href='/signup';
-}
 
-  const handleKeyPress = (e: { key: string; }) => {
+  const handleSignUp = () => {
+    router.push('/signup');
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSubmit();
     }
@@ -85,13 +92,13 @@ const handleSignUp = ()=>{
           {/* Logo */}
           <div className="mb-8">
             <div className="flex items-center gap-3">
-            <Image
-                    src="/assets/logodark.png"
-                    alt="Decluttr Logo"
-                    width={260}
-                    height={50}
-                    priority
-                    />
+              <Image
+                src="/assets/logodark.png"
+                alt="Decluttr Logo"
+                width={260}
+                height={50}
+                priority
+              />
             </div>
           </div>
 
@@ -109,17 +116,18 @@ const handleSignUp = ()=>{
           <div className="space-y-5">
             {/* Email */}
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Email</label>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Email or Username</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   onKeyPress={handleKeyPress}
                   className={`w-full pl-12 pr-4 py-3 border-2 text-gray-500 placeholder:text-gray-500 rounded-xl focus:outline-none transition-colors ${
                     error ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-green-500'
                   }`}
+                  placeholder="Email or username"
                 />
               </div>
             </div>
@@ -137,8 +145,10 @@ const handleSignUp = ()=>{
                   className={`w-full pl-12 pr-12 py-3 border-2 text-gray-500 placeholder:text-gray-500 rounded-xl focus:outline-none transition-colors ${
                     error ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-green-500'
                   }`}
+                  placeholder="Password"
                 />
                 <button
+                  type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
@@ -156,7 +166,7 @@ const handleSignUp = ()=>{
 
             {/* Forgot Password */}
             <div className="flex justify-end">
-              <button className="text-sm text-red-400 hover:text-emerald-700 font-semibold">
+              <button type="button" className="text-sm text-red-400 hover:text-emerald-700 font-semibold">
                 Forgot Password?
               </button>
             </div>
@@ -187,7 +197,7 @@ const handleSignUp = ()=>{
 
             {/* Social Login */}
             <div className="grid grid-cols-2 gap-4">
-              <button className="flex items-center justify-center gap-2 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
+              <button type="button" className="flex items-center justify-center gap-2 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -196,7 +206,7 @@ const handleSignUp = ()=>{
                 </svg>
                 <span className="font-semibold text-gray-700 text-sm lg:text-base">Google</span>
               </button>
-              <button className="flex items-center justify-center gap-2 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
+              <button type="button" className="flex items-center justify-center gap-2 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
                 <svg className="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
@@ -207,7 +217,7 @@ const handleSignUp = ()=>{
             {/* Sign Up Link */}
             <p className="text-center text-gray-600">
               Don&apos;t have an account?{' '}
-              <button className="text-green-600 hover:text-green-700 font-semibold" onClick={handleSignUp}>
+              <button type="button" className="text-green-600 hover:text-green-700 font-semibold" onClick={handleSignUp}>
                 Sign up
               </button>
             </p>

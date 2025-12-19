@@ -1,8 +1,11 @@
+// app/signup/page.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff, User, Phone, MapPin, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 const signupImages = [
   { url: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&h=1600&fit=crop', text: 'Start Your Journey Today' },
@@ -20,13 +23,15 @@ export default function SignupPage() {
     password: '',
     confirmPassword: '',
     location: '',
-    phone: '',
+    phoneNumber: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState<{ name?: string; username?: string; email?: string; password?: string; confirmPassword?: string; location?: string; phone?: string; }>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<{ name?: string; username?: string; email?: string; password?: string; confirmPassword?: string; location?: string; phoneNumber?: string; general?: string }>({});
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  const { signup, isLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -36,11 +41,11 @@ export default function SignupPage() {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = '/login';
+    router.push('/login');
   }
 
   const validate = () => {
-    const newErrors:any = {};
+    const newErrors: any = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.username.trim()) newErrors.username = 'Username is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
@@ -49,25 +54,38 @@ export default function SignupPage() {
     if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
     if (!formData.location) newErrors.location = 'Location is required';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
+    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required';
     return newErrors;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newErrors = validate();
     setErrors(newErrors);
     
     if (Object.keys(newErrors).length === 0) {
-      setIsLoading(true);
-      setTimeout(() => {
-        alert('Account created successfully! Redirecting to marketplace...');
-        window.location.href = '/main/marketplace';
-        setIsLoading(false);
-      }, 1000);
+      try {
+        // Remove confirmPassword before sending to backend
+        const { confirmPassword, ...signupData } = formData;
+        await signup(signupData);
+        router.push('/main/marketplace');
+      } catch (error: any) {
+        // Handle backend errors
+        if (error.errors && Array.isArray(error.errors)) {
+          const backendErrors: any = {};
+          error.errors.forEach((err: string) => {
+            if (err.includes('email')) backendErrors.email = err;
+            else if (err.includes('username')) backendErrors.username = err;
+            else if (err.includes('phone')) backendErrors.phoneNumber = err;
+          });
+          setErrors(backendErrors);
+        } else {
+          setErrors({ general: error.message || 'Registration failed' });
+        }
+      }
     }
   };
 
-  const handleKeyPress = (e: { key: string; }) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSubmit();
     }
@@ -109,13 +127,13 @@ export default function SignupPage() {
           {/* Logo */}
           <div className="mb-6">
             <div className="flex items-center gap-3">
-            <Image
-                    src="/assets/logodark.png"
-                    alt="Decluttr Logo"
-                    width={260}
-                    height={50}
-                    priority
-                    />
+              <Image
+                src="/assets/logodark.png"
+                alt="Decluttr Logo"
+                width={260}
+                height={50}
+                priority
+              />
             </div>
           </div>
 
@@ -129,6 +147,13 @@ export default function SignupPage() {
 
           {/* Form */}
           <div className="space-y-4">
+            {/* General Error */}
+            {errors.general && (
+              <div className="p-3 bg-red-50 border-2 border-red-500 rounded-xl">
+                <p className="text-sm text-red-600 font-medium">{errors.general}</p>
+              </div>
+            )}
+
             {/* Name */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-1">Name</label>
@@ -196,6 +221,7 @@ export default function SignupPage() {
                   }`}
                 />
                 <button
+                  type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
@@ -221,6 +247,7 @@ export default function SignupPage() {
                   }`}
                 />
                 <button
+                  type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
@@ -257,16 +284,16 @@ export default function SignupPage() {
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    value={formData.phoneNumber}
+                    onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                     onKeyPress={handleKeyPress}
                     placeholder="0712345678"
                     className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-gray-500 placeholder:text-gray-500 focus:outline-none transition-colors ${
-                      errors.phone ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-green-500'
+                      errors.phoneNumber ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-green-500'
                     }`}
                   />
                 </div>
-                {errors.phone && <p className="text-xs text-red-600 mt-1 font-medium">{errors.phone}</p>}
+                {errors.phoneNumber && <p className="text-xs text-red-600 mt-1 font-medium">{errors.phoneNumber}</p>}
               </div>
             </div>
 
@@ -296,7 +323,7 @@ export default function SignupPage() {
 
             {/* Social Signup */}
             <div className="grid grid-cols-2 gap-4">
-              <button className="flex items-center justify-center gap-2 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
+              <button type="button" className="flex items-center justify-center gap-2 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -305,7 +332,7 @@ export default function SignupPage() {
                 </svg>
                 <span className="font-semibold text-gray-700 text-sm">Google</span>
               </button>
-              <button className="flex items-center justify-center gap-2 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
+              <button type="button" className="flex items-center justify-center gap-2 py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
                 <svg className="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
@@ -316,7 +343,7 @@ export default function SignupPage() {
             {/* Login Link */}
             <p className="text-center text-gray-600">
               Already have an account?{' '}
-              <button className="text-green-600 hover:text-green-700 font-semibold" onClick={handleLogin}>
+              <button type="button" className="text-green-600 hover:text-green-700 font-semibold" onClick={handleLogin}>
                 Log in
               </button>
             </p>
