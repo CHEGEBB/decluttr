@@ -28,429 +28,83 @@ import {
 import Link from 'next/link';
 import { InfiniteMarquee } from '@/components/marketplace/InfiniteMarquee';
 
-// Extended mock data with more products
-const productsByCategory = {
-  electronics: [
-    {
-      id: 1,
-      name: 'Xiaomi 4K Ultra HD Action Camera',
-      image: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&h=600&fit=crop',
-      seller: 'tech_gear',
-      category: 'Electronics',
-      type: 'Resale' as const,
-      price: 54900,
-      originalPrice: 79900,
-      condition: 'New',
-      rating: 4.7,
-      reviews: 89,
-      location: 'Nairobi',
-      delivery: 'KSh 200',
-      tags: ['4K', 'Action', 'Camera']
-    },
-    {
-      id: 2,
-      name: 'iPhone 13 Pro 256GB',
-      image: 'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=600&h=600&fit=crop',
-      seller: 'apple_lover',
-      category: 'Electronics',
-      type: 'Resale' as const,
-      price: 95000,
-      originalPrice: 145000,
-      condition: 'Like New',
-      rating: 4.8,
-      reviews: 124,
-      location: 'Nairobi',
-      delivery: 'Free',
-      tags: ['iPhone', 'Apple', 'Premium']
-    },
-    {
-      id: 3,
-      name: 'MacBook Pro M1 2020',
-      image: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=600&h=600&fit=crop',
-      seller: 'tech_trader',
-      category: 'Electronics',
-      type: 'Resale' as const,
-      price: 120000,
-      originalPrice: 180000,
-      condition: 'Excellent',
-      rating: 4.9,
-      reviews: 67,
-      location: 'Mombasa',
-      delivery: 'KSh 500',
-      tags: ['Laptop', 'Apple', 'MacBook']
-    },
-    {
-      id: 4,
-      name: 'Samsung QLED 4K TV 55"',
-      image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600&h=600&fit=crop',
-      seller: 'home_ent',
-      category: 'Electronics',
-      type: 'Resale' as const,
-      price: 85000,
-      originalPrice: 150000,
-      condition: 'Good',
-      rating: 4.5,
-      reviews: 89,
-      location: 'Nairobi',
-      delivery: 'KSh 800',
-      tags: ['TV', '4K', 'Smart TV']
-    },
-    {
-      id: 5,
-      name: 'Sony WH-1000XM4 Headphones',
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop',
-      seller: 'audio_phile',
-      category: 'Electronics',
-      type: 'Resale' as const,
-      price: 25000,
-      originalPrice: 45000,
-      condition: 'Like New',
-      rating: 4.8,
-      reviews: 156,
-      location: 'Kisumu',
-      delivery: 'KSh 200',
-      tags: ['Headphones', 'Wireless', 'Noise Cancelling']
-    },
-    {
-      id: 6,
-      name: 'DJI Mini 3 Pro Drone',
-      image: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=600&h=600&fit=crop',
-      seller: 'drone_master',
-      category: 'Electronics',
-      type: 'Resale' as const,
-      price: 120000,
-      originalPrice: 180000,
-      condition: 'New',
-      rating: 4.9,
-      reviews: 78,
-      location: 'Nairobi',
-      delivery: 'Free',
-      tags: ['Drone', 'Camera', '4K']
-    },
-    {
-      id: 7,
-      name: 'PlayStation 5 Digital Edition',
-      image: 'https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=600&h=600&fit=crop',
-      seller: 'gamer_ken',
-      category: 'Electronics',
-      type: 'Resale' as const,
-      price: 65000,
-      originalPrice: 95000,
-      condition: 'Excellent',
-      rating: 4.7,
-      reviews: 134,
-      location: 'Nairobi',
-      delivery: 'KSh 400',
-      tags: ['Gaming', 'Console', 'PS5']
-    },
-    {
-      id: 8,
-      name: 'Apple Watch Series 8',
-      image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600&h=600&fit=crop',
-      seller: 'watch_collector',
-      category: 'Electronics',
-      type: 'Resale' as const,
-      price: 45000,
-      originalPrice: 75000,
-      condition: 'New',
-      rating: 4.8,
-      reviews: 89,
-      location: 'Mombasa',
-      delivery: 'Free',
-      tags: ['Smartwatch', 'Apple', 'Fitness']
-    }
-  ],
-  clothes: [
-    {
-      id: 9,
-      name: 'Leather Jacket Black',
-      image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=600&fit=crop',
-      seller: 'fashion_jane',
-      category: 'Clothes',
-      type: 'Resale' as const,
-      price: 12500,
-      originalPrice: 25000,
-      condition: 'Excellent',
-      rating: 4.5,
-      reviews: 78,
-      location: 'Nairobi',
-      delivery: 'KSh 150',
-      tags: ['Jacket', 'Leather', 'Premium']
-    },
-    {
-      id: 10,
-      name: 'Designer Suit Set',
-      image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=600&fit=crop',
-      seller: 'formal_wear',
-      category: 'Clothes',
-      type: 'Resale' as const,
-      price: 18000,
-      originalPrice: 35000,
-      condition: 'Like New',
-      rating: 4.6,
-      reviews: 45,
-      location: 'Nairobi',
-      delivery: 'KSh 250',
-      tags: ['Suit', 'Formal', 'Designer']
-    },
-    {
-      id: 11,
-      name: 'Summer Dress Collection',
-      image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&h=600&fit=crop',
-      seller: 'dress_boutique',
-      category: 'Clothes',
-      type: 'Resale' as const,
-      price: 7500,
-      originalPrice: 15000,
-      condition: 'New',
-      rating: 4.7,
-      reviews: 112,
-      location: 'Mombasa',
-      delivery: 'KSh 100',
-      tags: ['Dress', 'Summer', 'Collection']
-    },
-    {
-      id: 12,
-      name: 'Denim Jacket Blue',
-      image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=600&fit=crop',
-      seller: 'denim_lover',
-      category: 'Clothes',
-      type: 'Resale' as const,
-      price: 8500,
-      originalPrice: 12000,
-      condition: 'Good',
-      rating: 4.4,
-      reviews: 67,
-      location: 'Kisumu',
-      delivery: 'KSh 150',
-      tags: ['Jacket', 'Denim', 'Casual']
-    }
-  ],
-  shoes: [
-    {
-      id: 13,
-      name: 'Nike Air Max 270',
-      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=600&fit=crop',
-      seller: 'sneaker_head',
-      category: 'Shoes',
-      type: 'Resale' as const,
-      price: 13500,
-      originalPrice: 20000,
-      condition: 'New',
-      rating: 4.9,
-      reviews: 89,
-      location: 'Mombasa',
-      delivery: 'KSh 200',
-      tags: ['Nike', 'Sneakers', 'Limited']
-    },
-    {
-      id: 14,
-      name: 'Adidas Ultraboost 21',
-      image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&h=600&fit=crop',
-      seller: 'running_gear',
-      category: 'Shoes',
-      type: 'Resale' as const,
-      price: 18000,
-      originalPrice: 25000,
-      condition: 'Like New',
-      rating: 4.8,
-      reviews: 124,
-      location: 'Nairobi',
-      delivery: 'Free',
-      tags: ['Adidas', 'Running', 'Comfort']
-    },
-    {
-      id: 15,
-      name: 'Leather Formal Shoes',
-      image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop',
-      seller: 'formal_footwear',
-      category: 'Shoes',
-      type: 'Resale' as const,
-      price: 9500,
-      originalPrice: 18000,
-      condition: 'Excellent',
-      rating: 4.6,
-      reviews: 56,
-      location: 'Nairobi',
-      delivery: 'KSh 150',
-      tags: ['Leather', 'Formal', 'Shoes']
-    }
-  ],
-  furniture: [
-    {
-      id: 16,
-      name: 'Modern Study Desk',
-      image: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=600&h=600&fit=crop',
-      seller: 'home_declutter',
-      category: 'Furniture',
-      type: 'Resale' as const,
-      price: 28000,
-      originalPrice: 45000,
-      condition: 'Excellent',
-      rating: 4.7,
-      reviews: 42,
-      location: 'Nairobi',
-      delivery: 'KSh 600',
-      tags: ['Wooden', 'Study', 'Desk']
-    },
-    {
-      id: 17,
-      name: 'Leather Sofa Set',
-      image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&h=600&fit=crop',
-      seller: 'furniture_kenya',
-      category: 'Furniture',
-      type: 'Resale' as const,
-      price: 85000,
-      originalPrice: 150000,
-      condition: 'Good',
-      rating: 4.5,
-      reviews: 78,
-      location: 'Nairobi',
-      delivery: 'KSh 1200',
-      tags: ['Sofa', 'Leather', 'Living Room']
-    },
-    {
-      id: 18,
-      name: 'King Size Bed Frame',
-      image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=600&h=600&fit=crop',
-      seller: 'bedroom_essentials',
-      category: 'Furniture',
-      type: 'Resale' as const,
-      price: 45000,
-      originalPrice: 75000,
-      condition: 'Like New',
-      rating: 4.8,
-      reviews: 34,
-      location: 'Mombasa',
-      delivery: 'KSh 800',
-      tags: ['Bed', 'King Size', 'Bedroom']
-    }
-  ],
-  books: [
-    {
-      id: 19,
-      name: 'Harry Potter Complete Collection',
-      image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&h=600&fit=crop',
-      seller: 'bookworm_ken',
-      category: 'Books',
-      type: 'Donation' as const,
-      price: 0,
-      condition: 'Good',
-      rating: 4.6,
-      reviews: 56,
-      location: 'Kisumu',
-      delivery: 'Free',
-      tags: ['Harry Potter', 'Collection']
-    },
-    {
-      id: 20,
-      name: 'Rich Dad Poor Dad',
-      image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&h=600&fit=crop',
-      seller: 'finance_books',
-      category: 'Books',
-      type: 'Resale' as const,
-      price: 1500,
-      originalPrice: 3000,
-      condition: 'Excellent',
-      rating: 4.7,
-      reviews: 89,
-      location: 'Nairobi',
-      delivery: 'KSh 50',
-      tags: ['Finance', 'Self-help']
-    },
-    {
-      id: 21,
-      name: 'Computer Science Textbooks',
-      image: 'https://images.unsplash.com/photo-1589998059171-988d887df646?w=600&h=600&fit=crop',
-      seller: 'student_seller',
-      category: 'Books',
-      type: 'Donation' as const,
-      price: 0,
-      condition: 'Fair',
-      rating: 4.3,
-      reviews: 23,
-      location: 'Nairobi',
-      delivery: 'Free',
-      tags: ['Textbooks', 'Education']
-    }
-  ],
-  accessories: [
-    {
-      id: 22,
-      name: 'Designer Handbag',
-      image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&h=600&fit=crop',
-      seller: 'luxury_lover',
-      category: 'Accessories',
-      type: 'Resale' as const,
-      price: 85000,
-      originalPrice: 150000,
-      condition: 'Excellent',
-      rating: 4.8,
-      reviews: 34,
-      location: 'Nairobi',
-      delivery: 'Free',
-      tags: ['Designer', 'Handbag']
-    },
-    {
-      id: 23,
-      name: 'Ray-Ban Sunglasses',
-      image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&h=600&fit=crop',
-      seller: 'sunglass_store',
-      category: 'Accessories',
-      type: 'Resale' as const,
-      price: 12500,
-      originalPrice: 25000,
-      condition: 'New',
-      rating: 4.9,
-      reviews: 67,
-      location: 'Mombasa',
-      delivery: 'KSh 150',
-      tags: ['Sunglasses', 'Ray-Ban']
-    },
-    {
-      id: 24,
-      name: 'Silver Necklace Set',
-      image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop',
-      seller: 'jewelry_shop',
-      category: 'Accessories',
-      type: 'Resale' as const,
-      price: 8500,
-      originalPrice: 15000,
-      condition: 'Like New',
-      rating: 4.6,
-      reviews: 45,
-      location: 'Nairobi',
-      delivery: 'KSh 100',
-      tags: ['Jewelry', 'Necklace', 'Silver']
-    }
-  ]
+// Define category type
+type CategoryName = 
+  | 'Electronics' 
+  | 'Clothes' 
+  | 'Shoes' 
+  | 'Furniture' 
+  | 'Books' 
+  | 'Accessories' 
+  | 'Home' 
+  | 'Entertainment' 
+  | 'Sports' 
+  | 'Arts';
+
+// Category background images and gradients
+const categoryBackgrounds: Record<CategoryName, string> = {
+  Electronics: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1200&h=400&fit=crop',
+  Clothes: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&h=400&fit=crop',
+  Shoes: 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=1200&h=400&fit=crop',
+  Furniture: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1200&h=400&fit=crop',
+  Books: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1200&h=400&fit=crop',
+  Accessories: 'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=1200&h=400&fit=crop',
+  Home: 'https://images.unsplash.com/photo-1484101403633-562f891dc89a?w=1200&h=400&fit=crop',
+  Entertainment: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=1200&h=400&fit=crop',
+  Sports: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200&h=400&fit=crop',
+  Arts: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=1200&h=400&fit=crop'
 };
 
-// Category background images
-const categoryBackgrounds = {
-  electronics: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1200&h=400&fit=crop',
-  clothes: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&h=400&fit=crop',
-  shoes: 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=1200&h=400&fit=crop',
-  furniture: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1200&h=400&fit=crop',
-  books: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1200&h=400&fit=crop',
-  accessories: 'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=1200&h=400&fit=crop'
+const categoryGradients: Record<CategoryName, string> = {
+  Electronics: 'from-blue-900/90 via-blue-700/70 to-transparent',
+  Clothes: 'from-pink-900/90 via-pink-700/70 to-transparent',
+  Shoes: 'from-orange-900/90 via-orange-700/70 to-transparent',
+  Furniture: 'from-amber-900/90 via-amber-700/70 to-transparent',
+  Books: 'from-purple-900/90 via-purple-700/70 to-transparent',
+  Accessories: 'from-rose-900/90 via-rose-700/70 to-transparent',
+  Home: 'from-teal-900/90 via-teal-700/70 to-transparent',
+  Entertainment: 'from-red-900/90 via-red-700/70 to-transparent',
+  Sports: 'from-green-900/90 via-green-700/70 to-transparent',
+  Arts: 'from-indigo-900/90 via-indigo-700/70 to-transparent'
 };
+
+const categoryIcons: Record<CategoryName, any> = {
+  Electronics: Smartphone,
+  Clothes: Shirt,
+  Shoes: Footprints,
+  Furniture: Sofa,
+  Books: BookOpen,
+  Accessories: Glasses,
+  Home: Sofa,
+  Entertainment: Smartphone,
+  Sports: Footprints,
+  Arts: BookOpen
+};
+
+// Helper function to check if a string is a valid CategoryName
+function isCategoryName(category: string): category is CategoryName {
+  return category in categoryBackgrounds;
+}
 
 // Product Card Component
 function ProductCard({ product, isFavorite, onToggleFavorite, onAddToCart }: any) {
+  const mainImage = product.images && product.images.length > 0 
+    ? product.images[0].url 
+    : product.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop';
+
   return (
     <div className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group border border-gray-100 h-full flex flex-col">
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-100">
         <img
-          src={product.image}
+          src={mainImage}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
         
         {/* Badges */}
         <div className="absolute top-4 left-4 flex flex-col gap-2">
-          {product.type === 'Donation' && (
+          {(product.type === 'Donation' || product.listingType === 'donation') && (
             <span className="px-4 py-2 bg-green-500 text-white text-sm font-bold rounded-full shadow-lg">
               FREE
             </span>
@@ -492,7 +146,7 @@ function ProductCard({ product, isFavorite, onToggleFavorite, onAddToCart }: any
             <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
             <span className="text-base font-semibold text-gray-700 ml-1.5">{product.rating}</span>
           </div>
-          <span className="text-sm text-gray-500">({product.reviews} reviews)</span>
+          <span className="text-sm text-gray-500">({product.reviews || product.views || 0} reviews)</span>
         </div>
 
         {/* Location & Delivery */}
@@ -503,7 +157,7 @@ function ProductCard({ product, isFavorite, onToggleFavorite, onAddToCart }: any
           </div>
           <div className="flex items-center gap-2">
             <Truck className="w-4 h-4 text-blue-500" />
-            <span className="font-medium">{product.delivery}</span>
+            <span className="font-medium">{product.delivery || 'Delivery Available'}</span>
           </div>
         </div>
 
@@ -511,7 +165,7 @@ function ProductCard({ product, isFavorite, onToggleFavorite, onAddToCart }: any
         <div className="mt-auto pt-4 border-t border-gray-100">
           <div className="flex items-end justify-between mb-4">
             <div>
-              {product.type === 'Donation' ? (
+              {(product.type === 'Donation' || product.listingType === 'donation') ? (
                 <div className="text-3xl font-black text-green-600">FREE</div>
               ) : (
                 <>
@@ -551,18 +205,10 @@ function CategorySectionWithBg({
   onToggleFavorite, 
   onAddToCart,
   icon: Icon,
-  backgroundImage
+  backgroundImage,
+  gradient
 }: any) {
   if (products.length === 0) return null;
-
-  const categoryNames: Record<string, string> = {
-    electronics: 'Electronics',
-    clothes: 'Clothes',
-    shoes: 'Shoes',
-    furniture: 'Furniture',
-    books: 'Books',
-    accessories: 'Accessories'
-  };
 
   return (
     <div className="mb-12">
@@ -575,14 +221,14 @@ function CategorySectionWithBg({
           backgroundPosition: 'center'
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
+        <div className={`absolute inset-0 bg-gradient-to-r ${gradient}`}></div>
         <div className="relative z-10 h-full flex items-center px-8">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border-2 border-white/30">
               <Icon className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h2 className="text-4xl font-black text-white mb-2">{categoryNames[category]}</h2>
+              <h2 className="text-4xl font-black text-white mb-2">{category}</h2>
               <p className="text-white/90 text-lg">{products.length} items available</p>
             </div>
           </div>
@@ -615,6 +261,8 @@ export default function ShopPage() {
   const [cartCount, setCartCount] = useState(3);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [windowWidth, setWindowWidth] = useState(0);
+  const [productsByCategory, setProductsByCategory] = useState<Record<string, any[]>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
@@ -622,6 +270,57 @@ export default function ShopPage() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${baseUrl}/products?limit=1000`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      
+      const transformedProducts = data.data.map((product: any) => ({
+        id: product._id || product.id,
+        name: product.name,
+        image: product.images?.[0]?.url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop',
+        images: product.images || [],
+        seller: product.seller?.username || product.seller?.name || 'Unknown',
+        category: product.category,
+        type: product.listingType === 'donation' ? 'Donation' : 'Resale',
+        listingType: product.listingType,
+        price: product.price || 0,
+        originalPrice: null,
+        condition: product.condition || 'Good',
+        rating: product.seller?.ratings || product.rating || 4.5,
+        reviews: product.views || 0,
+        location: product.location || product.seller?.location || 'Nairobi',
+        delivery: product.listingType === 'donation' ? 'Free' : 'KSh 200',
+        tags: product.tags || []
+      }));
+
+      const grouped = transformedProducts.reduce((acc: Record<string, any[]>, product: any) => {
+        const cat = product.category.toLowerCase();
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(product);
+        return acc;
+      }, {});
+
+      setProductsByCategory(grouped);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const allProducts = Object.values(productsByCategory).flat();
 
@@ -681,9 +380,24 @@ export default function ShopPage() {
 
   const showSpecificCategory = selectedCategory !== 'all';
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        <InfiniteMarquee />
+        <Navbar cartCount={cartCount} onSearch={handleSearch} />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading products...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-              <InfiniteMarquee />
+      <InfiniteMarquee />
 
       <Navbar cartCount={cartCount} onSearch={handleSearch} />
       
@@ -755,65 +469,26 @@ export default function ShopPage() {
             ) : (
               /* Show All Categories with Background Images */
               <>
-                <CategorySectionWithBg
-                  category="electronics"
-                  products={filteredCategories.electronics}
-                  favorites={favorites}
-                  onToggleFavorite={toggleFavorite}
-                  onAddToCart={addToCart}
-                  icon={Smartphone}
-                  backgroundImage={categoryBackgrounds.electronics}
-                />
-                
-                <CategorySectionWithBg
-                  category="clothes"
-                  products={filteredCategories.clothes}
-                  favorites={favorites}
-                  onToggleFavorite={toggleFavorite}
-                  onAddToCart={addToCart}
-                  icon={Shirt}
-                  backgroundImage={categoryBackgrounds.clothes}
-                />
-                
-                <CategorySectionWithBg
-                  category="shoes"
-                  products={filteredCategories.shoes}
-                  favorites={favorites}
-                  onToggleFavorite={toggleFavorite}
-                  onAddToCart={addToCart}
-                  icon={Footprints}
-                  backgroundImage={categoryBackgrounds.shoes}
-                />
-                
-                <CategorySectionWithBg
-                  category="furniture"
-                  products={filteredCategories.furniture}
-                  favorites={favorites}
-                  onToggleFavorite={toggleFavorite}
-                  onAddToCart={addToCart}
-                  icon={Sofa}
-                  backgroundImage={categoryBackgrounds.furniture}
-                />
-                
-                <CategorySectionWithBg
-                  category="books"
-                  products={filteredCategories.books}
-                  favorites={favorites}
-                  onToggleFavorite={toggleFavorite}
-                  onAddToCart={addToCart}
-                  icon={BookOpen}
-                  backgroundImage={categoryBackgrounds.books}
-                />
-                
-                <CategorySectionWithBg
-                  category="accessories"
-                  products={filteredCategories.accessories}
-                  favorites={favorites}
-                  onToggleFavorite={toggleFavorite}
-                  onAddToCart={addToCart}
-                  icon={Glasses}
-                  backgroundImage={categoryBackgrounds.accessories}
-                />
+                {Object.entries(filteredCategories).map(([category, products]) => {
+                  const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
+                  
+                  // Use type guard to check if categoryName is valid
+                  const safeCategory = isCategoryName(categoryName) ? categoryName : 'Electronics';
+                  
+                  return (
+                    <CategorySectionWithBg
+                      key={category}
+                      category={categoryName}
+                      products={products}
+                      favorites={favorites}
+                      onToggleFavorite={toggleFavorite}
+                      onAddToCart={addToCart}
+                      icon={categoryIcons[safeCategory]}
+                      backgroundImage={categoryBackgrounds[safeCategory]}
+                      gradient={categoryGradients[safeCategory]}
+                    />
+                  );
+                })}
               </>
             )}
 
