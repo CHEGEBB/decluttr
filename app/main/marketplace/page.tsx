@@ -14,6 +14,7 @@ import Footer from '@/components/footer';
 import { useProducts } from '@/hooks/useProducts';
 import { ProductFilters, Product } from '@/services/productService';
 
+
 const categories = ['All Products', 'Electronics', 'Clothes', 'Shoes', 'Accessories', 'Furniture', 'Books', 'Sports', 'Home', 'Entertainment'];
 const filterTypes = ['All', 'Resale Only', 'Donation Only'];
 const PRODUCTS_PER_PAGE = 12;
@@ -34,11 +35,11 @@ export default function MarketplacePage() {
   const [hasMore, setHasMore] = useState(true);
 
   // Use the products hook
-  const { 
-    products, 
-    isLoading, 
-    error, 
-    getProducts, 
+  const {
+    products,
+    isLoading,
+    error,
+    getProducts,
     searchProducts,
     getProductsByCategory,
     totalPages
@@ -74,8 +75,8 @@ export default function MarketplacePage() {
     try {
       const filters: ProductFilters = {
         category: selectedCategory !== 'All Products' ? selectedCategory : undefined,
-        listingType: selectedFilter !== 'All' ? 
-          (selectedFilter === 'Resale Only' ? 'resale' : 'donation') : 
+        listingType: selectedFilter !== 'All' ?
+          (selectedFilter === 'Resale Only' ? 'resale' : 'donation') :
           undefined,
         minPrice: priceRange.min,
         maxPrice: priceRange.max,
@@ -144,8 +145,8 @@ export default function MarketplacePage() {
     try {
       const filters: ProductFilters = {
         category: selectedCategory !== 'All Products' ? selectedCategory : undefined,
-        listingType: selectedFilter !== 'All' ? 
-          (selectedFilter === 'Resale Only' ? 'resale' : 'donation') : 
+        listingType: selectedFilter !== 'All' ?
+          (selectedFilter === 'Resale Only' ? 'resale' : 'donation') :
           undefined,
         minPrice: priceRange.min,
         maxPrice: priceRange.max,
@@ -170,7 +171,7 @@ export default function MarketplacePage() {
     const nextPage = currentPage + 1;
     setLoadingMore(true);
     setCurrentPage(nextPage);
-    
+
     try {
       await loadProducts(nextPage, true);
     } catch (err) {
@@ -182,7 +183,7 @@ export default function MarketplacePage() {
 
   // Transform API product to match ProductCard props
   const transformProductForCard = (product: Product) => ({
-    id: product.id,
+    id: Number(product.id),
     name: product.name,
     image: product.images?.[0]?.url || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&h=800&fit=crop',
     seller: product.seller?.username || product.seller?.name || 'Unknown Seller',
@@ -208,7 +209,7 @@ export default function MarketplacePage() {
       <InfiniteMarquee />
 
       {/* Navbar */}
-      <Navbar cartCount={cart.length} onSearch={handleSearch} />
+      <Navbar onSearch={handleSearch} />
 
       {/* Mobile Filter Button */}
       <button
@@ -250,11 +251,11 @@ export default function MarketplacePage() {
                 <h2 className="text-2xl font-bold text-gray-900">
                   {isLoading && currentPage === 1 ? 'Loading...' : `${allProducts.length} Products Found`}
                 </h2>
-                
+
                 {/* Sort Dropdown */}
                 <div className="flex items-center gap-3">
                   <span className="text-gray-600 font-medium">Sort by:</span>
-                  <select 
+                  <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                     className="px-4 py-2 border border-gray-300 text-gray-500 placeholder:text-gray-500 rounded-lg focus:outline-none focus:border-red-500 bg-white"
@@ -285,7 +286,7 @@ export default function MarketplacePage() {
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
                 <p className="text-red-600">{error}</p>
-                <button 
+                <button
                   onClick={() => loadProducts(1)}
                   className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
@@ -326,18 +327,18 @@ export default function MarketplacePage() {
                   {/* Grid Layout - Responsive */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
                     {allProducts.map((product) => (
-                      <ProductCard
-                        key={product.id}
-                        product={transformProductForCard(product)}
-                        onAddToCart={handleAddToCart}
-                      />
+                     <ProductCard
+                     key={product.id}
+                     product={transformProductForCard(product)}
+                     productId={product.id || product._id || ''}
+                   />
                     ))}
                   </div>
 
                   {/* Load More Button */}
                   {showLoadMore && (
                     <div className="mt-12 text-center">
-                      <button 
+                      <button
                         onClick={handleLoadMore}
                         disabled={loadingMore}
                         className="px-8 py-4 bg-white border-2 border-red-600 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
@@ -376,7 +377,7 @@ export default function MarketplacePage() {
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
 
       {/* Global Styles */}
       <style jsx global>{`

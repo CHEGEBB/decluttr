@@ -5,8 +5,6 @@ import { useState, useEffect } from 'react';
 import { 
   ShoppingCart, 
   Trash2, 
-  Plus, 
-  Minus, 
   Truck, 
   CreditCard, 
   ArrowLeft, 
@@ -21,72 +19,16 @@ import {
   ChevronDown,
   Clock,
   Award,
-  Star
+  Star,
+  Plus,
+  Minus
 } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar } from '@/components/marketplace/Navbar';
 import Footer from '@/components/footer';
 import { InfiniteMarquee } from '@/components/marketplace/InfiniteMarquee';
-
-// Mock cart items
-const initialCartItems = [
-  {
-    id: 1,
-    name: 'iPhone 12 Pro 256GB',
-    image: 'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=400&h=400&fit=crop',
-    seller: 'tech_trader',
-    category: 'Electronics',
-    type: 'Resale',
-    price: 85000,
-    quantity: 1,
-    condition: 'Like New',
-    shipping: 'Free Shipping',
-    rating: 4.8,
-    reviews: 124
-  },
-  {
-    id: 2,
-    name: 'Nike Air Max 270 React',
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop',
-    seller: 'sneaker_head',
-    category: 'Shoes',
-    type: 'Resale',
-    price: 13500,
-    quantity: 2,
-    condition: 'New',
-    shipping: 'KSh 200',
-    rating: 4.9,
-    reviews: 89
-  },
-  {
-    id: 3,
-    name: 'Modern Wooden Study Desk',
-    image: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=400&h=400&fit=crop',
-    seller: 'home_declutter',
-    category: 'Furniture',
-    type: 'Resale',
-    price: 28000,
-    quantity: 1,
-    condition: 'Excellent',
-    shipping: 'KSh 600',
-    rating: 4.7,
-    reviews: 42
-  },
-  {
-    id: 4,
-    name: 'Summer Dresses Bundle (5 Pieces)',
-    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop',
-    seller: 'closet_clear',
-    category: 'Clothes',
-    type: 'Donation',
-    price: 0,
-    quantity: 1,
-    condition: 'Good',
-    shipping: 'Free',
-    rating: 4.5,
-    reviews: 31
-  }
-];
+import { useCart } from '@/hooks/useCart';
+import { refresh } from 'next/cache';
 
 // Shipping locations
 const shippingLocations = [
@@ -100,66 +42,122 @@ const shippingLocations = [
 
 // Promo codes
 const promoCodes = [
-  { code: 'SAVE10', discount: '10%', description: 'Get 10% off your order' },
-  { code: 'FREESHIP', discount: 'Free Shipping', description: 'Free shipping on all orders' },
-  { code: 'WELCOME25', discount: '25%', description: '25% off for new customers' }
+  { code: 'SAVE10', discount: 10, type: 'percentage', description: 'Get 10% off your order' },
+  { code: 'FREESHIP', discount: 0, type: 'shipping', description: 'Free shipping on all orders' },
+  { code: 'WELCOME25', discount: 25, type: 'percentage', description: '25% off for new customers' }
 ];
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const {
+    cartItems,
+    cartCount,
+    totalPrice,
+    shippingFee: baseShippingFee,
+    grandTotal: apiGrandTotal,
+    isLoading,
+    isUpdating,
+    isRemoving,
+    error,
+    removeFromCart,
+    clearCart,
+    getCart,
+    incrementQuantity,
+    decrementQuantity
+  } = useCart();
+
   const [selectedLocation, setSelectedLocation] = useState(shippingLocations[0]);
   const [promoCode, setPromoCode] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<typeof promoCodes[0] | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [removingItem, setRemovingItem] = useState<number | null>(null);
+  const [removingItemId, setRemovingItemId] = useState<string | null>(null);
   const [showPromoDropdown, setShowPromoDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [updatingItemId, setUpdatingItemId] = useState<string | null>(null);
 
-  // Calculate totals
-  const itemsTotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  const shippingFee = cartItems.reduce((total, item) => {
-    if (item.shipping === 'Free Shipping' || item.shipping === 'Free') {
-      return total;
-    }
-    const fee = parseInt(item.shipping.replace('KSh ', '')) || 0;
-    return total + fee;
-  }, selectedLocation.fee);
+  // Fetch cart on mount
+  useEffect(() => {
+    getCart();
+  }, [getCart]);
+
+  // Calculate totals with promo and location
+  const itemsTotal = totalPrice;
+  const locationShippingFee = selectedLocation.fee;
+  const totalShippingFee = appliedPromo?.type === 'shipping' ? 0 : (baseShippingFee + locationShippingFee);
   
-  const subtotal = itemsTotal + shippingFee;
-  const discount = promoCode === 'SAVE10' ? subtotal * 0.1 : promoCode === 'WELCOME25' ? subtotal * 0.25 : 0;
-  const grandTotal = subtotal - discount;
+  const subtotal = itemsTotal + totalShippingFee;
+  const discountAmount = appliedPromo?.type === 'percentage' 
+    ? (subtotal * appliedPromo.discount) / 100 
+    : 0;
+  const finalGrandTotal = subtotal - discountAmount;
 
-  // Handle quantity change
-  const updateQuantity = (id: number, change: number) => {
-    setCartItems(prev => prev.map(item => {
-      if (item.id === id) {
-        const newQuantity = Math.max(1, item.quantity + change);
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    }));
+  // Handle increment quantity
+  const handleIncrement = async (productId: string) => {
+  
+
+    setUpdatingItemId(productId);
+    try {
+      await incrementQuantity(productId);
+    } catch (err) {
+      console.error('Error incrementing quantity:', err);
+    } finally {
+      setUpdatingItemId(null);
+    }
+    window.location.reload();
+
+  };
+
+  // Handle decrement quantity
+  const handleDecrement = async (productId: string) => {
+    setUpdatingItemId(productId);
+    try {
+      await decrementQuantity(productId);
+    } catch (err) {
+      console.error('Error decrementing quantity:', err);
+    } finally {
+      setUpdatingItemId(null);
+    }
+    window.location.reload();
+
   };
 
   // Handle item removal with animation
-  const removeItem = (id: number) => {
-    setRemovingItem(id);
-    setTimeout(() => {
-      setCartItems(prev => prev.filter(item => item.id !== id));
-      setRemovingItem(null);
-    }, 500);
+  const handleRemoveItem = async (productId: string) => {
+    setRemovingItemId(productId);
+    try {
+      await removeFromCart(productId);
+      setTimeout(() => setRemovingItemId(null), 500);
+    } catch (err) {
+      console.error('Error removing item:', err);
+      setRemovingItemId(null);
+    }
   };
 
-  // Move to wishlist
-  const moveToWishlist = (id: number) => {
-    const item = cartItems.find(item => item.id === id);
-    if (item) {
-      removeItem(id);
+  // Handle clear cart
+  const handleClearCart = async () => {
+    if (window.confirm('Are you sure you want to clear your cart?')) {
+      try {
+        await clearCart();
+      } catch (err) {
+        console.error('Error clearing cart:', err);
+      }
     }
+  };
+
+  // Move to wishlist (just remove for now)
+  const moveToWishlist = async (productId: string) => {
+    await handleRemoveItem(productId);
   };
 
   // Handle promo code apply
   const handlePromoApply = (code: string) => {
-    setPromoCode(code);
-    setShowPromoDropdown(false);
+    const promo = promoCodes.find(p => p.code.toLowerCase() === code.toLowerCase());
+    if (promo) {
+      setAppliedPromo(promo);
+      setPromoCode(code);
+      setShowPromoDropdown(false);
+    } else {
+      alert('Invalid promo code');
+    }
   };
 
   // Handle search (for Navbar)
@@ -167,11 +165,58 @@ export default function CartPage() {
     setSearchQuery(query);
   };
 
-  // Empty cart state
-  if (cartItems.length === 0) {
+  // Format price
+  const formatPrice = (price: number) => {
+    return `KSh ${price.toLocaleString()}`;
+  };
+
+  // Loading state
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-        <Navbar cartCount={0} onSearch={handleSearch} />
+        <InfiniteMarquee />
+        <Navbar  onSearch={handleSearch} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center py-16">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-red-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 text-lg">Loading your cart...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        <InfiniteMarquee />
+        <Navbar onSearch={handleSearch} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center py-16">
+            <div className="text-red-600 text-6xl mb-4">⚠️</div>
+            <h1 className="text-3xl font-black text-gray-900 mb-4">Error Loading Cart</h1>
+            <p className="text-gray-600 mb-8">{error}</p>
+            <button 
+              onClick={() => getCart()}
+              className="px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-xl hover:from-red-700 hover:to-red-800 transition-all shadow-lg"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Empty cart state
+  if (cartCount === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        <InfiniteMarquee />
+        <Navbar onSearch={handleSearch} />
         
         {/* Success Animation */}
         {showSuccess && (
@@ -222,11 +267,10 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-            <InfiniteMarquee />
-
-      <Navbar cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} onSearch={handleSearch} />
+      <InfiniteMarquee />
+      <Navbar onSearch={handleSearch} />
       
-      {/* Success Animation (only shows when redirected from checkout) */}
+      {/* Success Animation */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fadeIn">
           <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md text-center transform transition-all duration-500 scale-100">
@@ -262,21 +306,19 @@ export default function CartPage() {
                 <ShoppingCart className="w-6 h-6 text-white" />
               </div>
               <div className="absolute -top-2 -right-2 w-6 h-6 bg-white border-2 border-red-600 rounded-full flex items-center justify-center">
-                <span className="text-xs font-bold text-red-600">
-                  {cartItems.reduce((sum, item) => sum + item.quantity, 0)}
-                </span>
+                <span className="text-xs font-bold text-red-600">{cartCount}</span>
               </div>
             </div>
             <div>
               <h1 className="text-3xl font-black text-gray-900">Shopping Cart</h1>
-              <p className="text-gray-600">{cartItems.length} items in your cart</p>
+              <p className="text-gray-600">{cartCount} items in your cart</p>
             </div>
           </div>
           
           <div className="text-right">
             <div className="text-sm text-gray-500">Total Value</div>
             <div className="text-2xl font-bold text-red-600">
-              KSh {grandTotal.toLocaleString()}
+              {formatPrice(finalGrandTotal)}
             </div>
           </div>
         </div>
@@ -296,8 +338,9 @@ export default function CartPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setCartItems([])}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all hover:scale-105"
+                  onClick={handleClearCart}
+                  disabled={isRemoving}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all hover:scale-105 disabled:opacity-50"
                 >
                   <Trash2 className="w-4 h-4" />
                   Clear All
@@ -307,121 +350,150 @@ export default function CartPage() {
 
             {/* Cart Items List */}
             <div className="space-y-4">
-              {cartItems.map((item) => (
-                <div 
-                  key={item.id}
-                  className={`bg-white rounded-2xl shadow-lg border border-gray-100 transition-all duration-500 overflow-hidden ${
-                    removingItem === item.id 
-                      ? 'opacity-0 scale-95 translate-x-4' 
-                      : 'opacity-100 scale-100'
-                  } hover:shadow-xl`}
-                >
-                  <div className="p-6">
-                    <div className="flex flex-col md:flex-row gap-6">
-                      {/* Product Image */}
-                      <div className="relative flex-shrink-0">
-                        <div className="w-32 h-32 md:w-40 md:h-40 rounded-xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-                          <img 
-                            src={item.image} 
-                            alt={item.name}
-                            className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
-                          />
-                          {item.type === 'Donation' && (
-                            <div className="absolute top-3 left-3 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-bold rounded-lg shadow-lg">
-                              FREE
-                            </div>
-                          )}
-                        </div>
-                        {/* Rating Badge */}
-                        <div className="absolute -bottom-2 left-4 bg-white border border-gray-200 rounded-full px-3 py-1.5 shadow-lg flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                          <span className="text-xs font-bold">{item.rating}</span>
-                          <span className="text-xs text-gray-500">({item.reviews})</span>
-                        </div>
-                      </div>
-
-                      {/* Product Details */}
-                      <div className="flex-1">
-                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between">
-                              <h3 className="text-lg font-bold text-gray-900 mb-2">{item.name}</h3>
-                              {item.type === 'Resale' && item.price > 0 && (
-                                <div className="text-2xl font-black text-gray-900">
-                                  KSh {(item.price * item.quantity).toLocaleString()}
-                                </div>
-                              )}
-                            </div>
-                            
-                            <div className="flex flex-wrap items-center gap-3 mb-4">
-                              <span className="text-sm text-gray-600">@{item.seller}</span>
-                              <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full">
-                                {item.category}
-                              </span>
-                              <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100">
-                                {item.condition}
-                              </span>
-                              <span className="flex items-center gap-1 text-sm text-gray-600">
-                                <Truck className="w-4 h-4" />
-                                {item.shipping}
-                              </span>
-                            </div>
-
-                            {item.type === 'Resale' && (
-                              <div className="text-sm text-gray-500 mb-4">
-                                Unit Price: KSh {item.price.toLocaleString()} × {item.quantity}
+              {cartItems.map((item) => {
+                const product = item.product;
+                const productId = product._id || product.id;
+                const isRemoving = removingItemId === productId;
+                const isUpdatingItem = updatingItemId === productId;
+                const itemTotal = product.listingType === 'resale' ? product.price * item.quantity : 0;
+                
+                return (
+                  <div 
+                    key={item._id}
+                    className={`bg-white rounded-2xl shadow-lg border border-gray-100 transition-all duration-500 overflow-hidden ${
+                      isRemoving
+                        ? 'opacity-0 scale-95 translate-x-4' 
+                        : 'opacity-100 scale-100'
+                    } hover:shadow-xl`}
+                  >
+                    <div className="p-6">
+                      <div className="flex flex-col md:flex-row gap-6">
+                        {/* Product Image */}
+                        <div className="relative flex-shrink-0">
+                          <div className="w-32 h-32 md:w-40 md:h-40 rounded-xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                            <img 
+                              src={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&h=800&fit=crop'} 
+                              alt={product.name}
+                              className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
+                            />
+                            {product.listingType === 'donation' && (
+                              <div className="absolute top-3 left-3 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-bold rounded-lg shadow-lg">
+                                FREE
                               </div>
                             )}
                           </div>
+                          {/* Rating Badge */}
+                          <div className="absolute -bottom-2 left-4 bg-white border border-gray-200 rounded-full px-3 py-1.5 shadow-lg flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                            <span className="text-xs font-bold">{product.seller?.ratings || product.rating || 4.5}</span>
+                          </div>
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
-                          <div className="flex items-center gap-4">
-                            {/* Quantity Control */}
-                            <div className="flex items-center gap-2 bg-gray-50 rounded-xl p-1">
+                        {/* Product Details */}
+                        <div className="flex-1">
+                          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between">
+                                <h3 className="text-lg font-bold text-gray-900 mb-2">{product.name}</h3>
+                                {product.listingType === 'resale' && product.price > 0 && (
+                                  <div className="text-2xl font-black text-gray-900">
+                                    {formatPrice(itemTotal)}
+                                    {item.quantity > 1 && (
+                                      <span className="text-sm font-normal text-gray-500 ml-2">
+                                        ({item.quantity} × {formatPrice(product.price)})
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="flex flex-wrap items-center gap-3 mb-4">
+                                <span className="text-sm text-gray-600">@{product.seller?.username || 'seller'}</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full">
+                                  {product.category}
+                                </span>
+                                <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100">
+                                  {product.condition || 'Good'}
+                                </span>
+                                <span className="flex items-center gap-1 text-sm text-gray-600">
+                                  <Truck className="w-4 h-4" />
+                                  {product.listingType === 'donation' ? 'Free' : 'Standard'}
+                                </span>
+                              </div>
+
+                              {/* Quantity Controls - ADDED THIS SECTION */}
+                              <div className="mb-4">
+                                <div className="flex items-center gap-4">
+                                  <span className="text-sm text-gray-600 font-medium">Quantity:</span>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => handleDecrement(productId)}
+                                      disabled={isUpdatingItem || isUpdating || item.quantity <= 1}
+                                      className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-600 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                    >
+                                      <Minus className="w-4 h-4" />
+                                    </button>
+                                    <div className="w-12 text-center">
+                                      <span className="text-lg font-bold text-gray-900">{item.quantity}</span>
+                                    </div>
+                                    <button
+                                      onClick={() => handleIncrement(productId)}
+                                      disabled={isUpdatingItem || isUpdating}
+                                      className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:border-green-500 hover:text-green-600 hover:bg-green-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                    >
+                                      <Plus className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {product.listingType === 'resale' && (
+                                      <span>
+                                        Unit: {formatPrice(product.price)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {product.listingType === 'resale' && (
+                                <div className="text-sm text-gray-500">
+                                  Added on: {new Date(item.addedAt).toLocaleDateString()}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
+                            <div className="flex items-center gap-4">
+                              {/* Move to Wishlist */}
                               <button
-                                onClick={() => updateQuantity(item.id, -1)}
-                                className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-white hover:shadow-md transition-all disabled:opacity-50"
-                                disabled={item.quantity <= 1}
+                                onClick={() => moveToWishlist(productId)}
+                                disabled={isRemoving || isUpdatingItem}
+                                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg disabled:opacity-50"
                               >
-                                <Minus className="w-4 h-4 text-gray-600" />
-                              </button>
-                              <span className="w-12 text-center text-lg font-bold text-gray-900">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() => updateQuantity(item.id, 1)}
-                                className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-white hover:shadow-md transition-all"
-                              >
-                                <Plus className="w-4 h-4 text-gray-600" />
+                                <Heart className="w-5 h-5" />
+                                <span className="text-sm font-semibold">Save for Later</span>
                               </button>
                             </div>
 
-                            {/* Move to Wishlist */}
+                            {/* Remove */}
                             <button
-                              onClick={() => moveToWishlist(item.id)}
-                              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg"
+                              onClick={() => handleRemoveItem(productId)}
+                              disabled={isRemoving || isUpdatingItem}
+                              className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-xl transition-all hover:scale-105 group disabled:opacity-50"
                             >
-                              <Heart className="w-5 h-5" />
-                              <span className="text-sm font-semibold">Save for Later</span>
+                              <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                              <span className="font-semibold">
+                                {isRemoving ? 'Removing...' : 'Remove'}
+                              </span>
                             </button>
                           </div>
-
-                          {/* Remove */}
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-xl transition-all hover:scale-105 group"
-                          >
-                            <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                            <span className="font-semibold">Remove</span>
-                          </button>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -452,8 +524,8 @@ export default function CartPage() {
                 {/* Price Breakdown */}
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                    <span className="text-gray-600">Items Total</span>
-                    <span className="text-lg font-bold text-gray-900">KSh {itemsTotal.toLocaleString()}</span>
+                    <span className="text-gray-600">Items Total ({cartCount})</span>
+                    <span className="text-lg font-bold text-gray-900">{formatPrice(itemsTotal)}</span>
                   </div>
                   
                   <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -461,7 +533,13 @@ export default function CartPage() {
                       <Truck className="w-4 h-4 text-gray-400" />
                       <span className="text-gray-600">Shipping</span>
                     </div>
-                    <span className="text-lg font-bold text-gray-900">KSh {shippingFee.toLocaleString()}</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      {appliedPromo?.type === 'shipping' ? (
+                        <span className="text-green-600">FREE</span>
+                      ) : (
+                        formatPrice(totalShippingFee)
+                      )}
+                    </span>
                   </div>
 
                   {/* Location Selector */}
@@ -480,7 +558,7 @@ export default function CartPage() {
                     >
                       {shippingLocations.map((location) => (
                         <option key={location.id} value={location.id}>
-                          {location.name} - KSh {location.fee.toLocaleString()} ({location.delivery})
+                          {location.name} - {formatPrice(location.fee)} ({location.delivery})
                         </option>
                       ))}
                     </select>
@@ -510,7 +588,7 @@ export default function CartPage() {
                       <input
                         type="text"
                         value={promoCode}
-                        onChange={(e) => setPromoCode(e.target.value)}
+                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                         placeholder="Enter promo code"
                         className="flex-1 px-4 py-3 text-gray-500 placeholder:text-gray-500 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 transition-colors"
                       />
@@ -521,6 +599,22 @@ export default function CartPage() {
                         Apply
                       </button>
                     </div>
+
+                    {/* Applied Promo Display */}
+                    {appliedPromo && (
+                      <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+                        <span className="text-sm font-bold text-green-700">{appliedPromo.code} Applied!</span>
+                        <button
+                          onClick={() => {
+                            setAppliedPromo(null);
+                            setPromoCode('');
+                          }}
+                          className="text-xs text-red-600 hover:underline"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
 
                     {/* Promo Dropdown */}
                     {showPromoDropdown && (
@@ -537,7 +631,7 @@ export default function CartPage() {
                                 <div className="text-sm text-gray-600">{promo.description}</div>
                               </div>
                               <span className="px-3 py-1 bg-red-100 text-red-700 text-sm font-bold rounded-full">
-                                {promo.discount}
+                                {promo.type === 'percentage' ? `${promo.discount}%` : 'Free Ship'}
                               </span>
                             </div>
                           </button>
@@ -547,13 +641,13 @@ export default function CartPage() {
                   </div>
 
                   {/* Discount */}
-                  {discount > 0 && (
+                  {discountAmount > 0 && (
                     <div className="flex justify-between items-center py-3 bg-gradient-to-r from-green-50 to-emerald-50 px-4 rounded-xl border border-emerald-200">
                       <div className="flex items-center gap-2">
                         <Award className="w-4 h-4 text-green-600" />
                         <span className="text-green-700 font-bold">Discount Applied</span>
                       </div>
-                      <span className="text-lg font-bold text-green-700">-KSh {discount.toLocaleString()}</span>
+                      <span className="text-lg font-bold text-green-700">-{formatPrice(discountAmount)}</span>
                     </div>
                   )}
 
@@ -563,7 +657,7 @@ export default function CartPage() {
                       <span className="text-xl font-bold text-gray-900">Grand Total</span>
                       <div className="text-right">
                         <div className="text-3xl font-black text-red-600">
-                          KSh {grandTotal.toLocaleString()}
+                          {formatPrice(finalGrandTotal)}
                         </div>
                         <div className="text-sm text-gray-500">Including all taxes</div>
                       </div>

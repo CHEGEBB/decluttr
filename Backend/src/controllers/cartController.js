@@ -20,7 +20,7 @@ exports.getCart = async (req, res) => {
     const validItems = cart.items.filter(item => {
       if (item.product && item.product.status === 'available') {
         if (item.product.listingType === 'resale') {
-          totalPrice += item.product.price;
+          totalPrice += item.product.price * item.quantity;
         }
         return true;
       }
@@ -50,12 +50,19 @@ exports.getCart = async (req, res) => {
 
 exports.addToCart = async (req, res) => {
   try {
-    const { productId } = req.body;
+    const { productId, quantity = 1 } = req.body;
 
     if (!productId) {
       return res.status(400).json({
         success: false,
         message: 'Please provide product ID'
+      });
+    }
+
+    if (quantity < 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Quantity must be at least 1'
       });
     }
 
@@ -95,18 +102,21 @@ exports.addToCart = async (req, res) => {
       cart = await Cart.create({ user: req.user._id, items: [] });
     }
 
-    const existingItem = cart.items.find(
+    const existingItemIndex = cart.items.findIndex(
       item => item.product.toString() === productId
     );
 
-    if (existingItem) {
-      return res.status(400).json({
-        success: false,
-        message: 'Product already in cart'
+    if (existingItemIndex !== -1) {
+      // Update quantity if product already exists
+      cart.items[existingItemIndex].quantity += quantity;
+    } else {
+      // Add new item with quantity
+      cart.items.push({ 
+        product: productId, 
+        quantity: quantity 
       });
     }
 
-    cart.items.push({ product: productId });
     await cart.save();
 
     await cart.populate({
@@ -119,13 +129,70 @@ exports.addToCart = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Product added to cart',
+      message: existingItemIndex !== -1 ? 'Cart updated' : 'Product added to cart',
       data: cart
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Failed to add product to cart',
+      error: error.message
+    });
+  }
+};
+
+exports.updateCartItem = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const { quantity } = req.body;
+
+    if (!quantity || quantity < 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Quantity must be at least 1'
+      });
+    }
+
+    const cart = await Cart.findOne({ user: req.user._id });
+
+    if (!cart) {
+      return res.status(404).json({
+        success: false,
+        message: 'Cart not found'
+      });
+    }
+
+    const itemIndex = cart.items.findIndex(
+      item => item.product.toString() === productId
+    );
+
+    if (itemIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found in cart'
+      });
+    }
+
+    cart.items[itemIndex].quantity = quantity;
+    await cart.save();
+
+    await cart.populate({
+      path: 'items.product',
+      populate: {
+        path: 'seller',
+        select: 'username name'
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Cart item updated',
+      data: cart
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update cart item',
       error: error.message
     });
   }

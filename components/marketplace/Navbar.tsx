@@ -4,20 +4,23 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, ShoppingCart, MessageCircle, User, LogOut, Menu, Home, Store, Package, Phone, Loader2 } from 'lucide-react';
+import { Search, ShoppingCart, MessageCircle, User, LogOut, Menu, Home, Store, Phone, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { useAuth } from '@/hooks/useAuth';
+import { useCartContext } from '@/context/CartContext';
 
 interface NavbarProps {
-  cartCount: number;
   onSearch: (query: string) => void;
 }
 
-export function Navbar({ cartCount, onSearch }: NavbarProps) {
+export function Navbar({ onSearch }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
+  
+  const { user, isAuthenticated, logout, isLoading: authLoading } = useAuth();
+  const { cartCount, isLoading: cartLoading } = useCartContext();
 
   const handleSearch = () => {
     onSearch(searchQuery);
@@ -30,12 +33,17 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
   };
 
   const handleLogout = async () => {
-    setIsLoggingOut(true);
-    
-    // Simulate logout process
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Navigate to login page
+    try {
+      await logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setShowLogoutModal(false);
+    }
+  };
+
+  const handleLogin = () => {
     router.push('/login');
   };
 
@@ -45,13 +53,31 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
     { label: 'Contact', href: '/main/contact', icon: Phone },
   ];
 
+  const CartCountBadge = () => {
+    if (cartLoading) {
+      return (
+        <span className="absolute -top-1 left-3 w-5 h-5 bg-gray-200 rounded-full animate-pulse" />
+      );
+    }
+    
+    if (cartCount > 0) {
+      return (
+        <span className="absolute -top-1 left-3 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center animate-fadeIn">
+          {cartCount > 99 ? '99+' : cartCount}
+        </span>
+      );
+    }
+    
+    return null;
+  };
+
   return (
     <>
       {/* Logout Modal */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-black/80 bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
-            {isLoggingOut ? (
+            {authLoading ? (
               <>
                 <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Loader2 className="w-8 h-8 text-red-600 animate-spin" />
@@ -64,14 +90,22 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
                 <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
                   <LogOut className="w-8 h-8 text-red-600" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Session Ended</h3>
-                <p className="text-gray-600 mb-6">You have been successfully logged out</p>
-                <button
-                  onClick={handleLogout}
-                  className="w-full bg-red-600 text-white font-semibold py-3 rounded-xl hover:bg-red-700 transition-colors"
-                >
-                  Continue to Login
-                </button>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Confirm Logout</h3>
+                <p className="text-gray-600 mb-6">Are you sure you want to logout?</p>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setShowLogoutModal(false)}
+                    className="flex-1 border-2 border-gray-300 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="flex-1 bg-red-600 text-white font-semibold py-3 rounded-xl hover:bg-red-700 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -98,39 +132,78 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   return (
-                    <Link key={item.label} href={item.href} className="flex items-center text-gray-700 hover:text-red-600 font-semibold py-2">
+                    <Link 
+                      key={item.label} 
+                      href={item.href} 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center text-gray-700 hover:text-red-600 font-semibold py-2"
+                    >
                       <Icon className="w-5 h-5 mr-3" />
                       {item.label}
                     </Link>
                   );
                 })}
                 <div className="pt-4 border-t">
-                  <Link href="/main/messages" className="flex items-center text-gray-700 hover:text-red-600 py-2">
+                  <Link 
+                    href="/main/messages" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center text-gray-700 hover:text-red-600 py-2"
+                  >
                     <MessageCircle className="w-5 h-5 mr-3" />
                     Messages
                     <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
                   </Link>
-                  <Link href="/main/cart" className="flex items-center text-gray-700 hover:text-red-600 py-2">
+                  <Link 
+                    href="/main/cart" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center text-gray-700 hover:text-red-600 py-2 relative"
+                  >
                     <ShoppingCart className="w-5 h-5 mr-3" />
                     Cart
-                    {cartCount > 0 && (
-                      <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">{cartCount}</span>
+                    {!cartLoading && cartCount > 0 && (
+                      <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                        {cartCount > 99 ? '99+' : cartCount}
+                      </span>
                     )}
                   </Link>
-                  <Link href="/main/profile" className="flex items-center text-gray-700 hover:text-red-600 py-2">
-                    <User className="w-5 h-5 mr-3" />
-                    Profile
-                  </Link>
-                  <button 
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      setShowLogoutModal(true);
-                    }}
-                    className="flex items-center text-gray-700 hover:text-red-600 py-2 w-full"
-                  >
-                    <LogOut className="w-5 h-5 mr-3" />
-                    Logout
-                  </button>
+                  {isAuthenticated ? (
+                    <>
+                      <Link 
+                        href="/main/profile" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center text-gray-700 hover:text-red-600 py-2"
+                      >
+                        <User className="w-5 h-5 mr-3" />
+                        Profile
+                        {user?.name && (
+                          <span className="ml-auto text-sm font-medium text-gray-600">
+                            {user.name.split(' ')[0]}
+                          </span>
+                        )}
+                      </Link>
+                      <button 
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          setShowLogoutModal(true);
+                        }}
+                        className="flex items-center text-gray-700 hover:text-red-600 py-2 w-full"
+                      >
+                        <LogOut className="w-5 h-5 mr-3" />
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <button 
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleLogin();
+                      }}
+                      className="flex items-center text-gray-700 hover:text-red-600 py-2 w-full"
+                    >
+                      <User className="w-5 h-5 mr-3" />
+                      Login / Signup
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -141,7 +214,6 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo and Mobile Menu Button */}
             <div className="flex items-center">
               <button 
                 className="lg:hidden mr-4 text-gray-700"
@@ -169,7 +241,6 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
               </Link>
             </div>
 
-            {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-8">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -186,7 +257,6 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
               })}
             </div>
 
-            {/* Search Bar */}
             <div className="flex-1 max-w-xl mx-4 lg:mx-8">
               <div className="relative">
                 <input
@@ -206,7 +276,6 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
               </div>
             </div>
 
-            {/* Right Side Icons with Labels */}
             <div className="flex items-center gap-4 lg:gap-6">
               <Link href="/main/messages" className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors relative">
                 <MessageCircle className="w-6 h-6" />
@@ -217,29 +286,49 @@ export function Navbar({ cartCount, onSearch }: NavbarProps) {
               <Link href="/main/cart" className="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors relative">
                 <ShoppingCart className="w-6 h-6" />
                 <span className="hidden lg:inline font-semibold">Cart</span>
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 left-3 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
+                <CartCountBadge />
               </Link>
               
-              <Link href="/main/profile" className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors">
-                <User className="w-6 h-6" />
-                <span className="font-semibold">Profile</span>
-              </Link>
-              
-              <button 
-                onClick={() => setShowLogoutModal(true)}
-                className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
-              >
-                <LogOut className="w-6 h-6" />
-                <span className="font-semibold">Logout</span>
-              </button>
+              {isAuthenticated ? (
+                <>
+                  <Link href="/main/profile" className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors">
+                    <User className="w-6 h-6" />
+                    <span className="font-semibold">
+                      {user?.name ? user.name.split(' ')[0] : 'Profile'}
+                    </span>
+                  </Link>
+                  
+                  <button 
+                    onClick={() => setShowLogoutModal(true)}
+                    className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
+                  >
+                    <LogOut className="w-6 h-6" />
+                    <span className="font-semibold">Logout</span>
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={handleLogin}
+                  className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
+                >
+                  <User className="w-6 h-6" />
+                  <span className="font-semibold">Login</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
       </nav>
+
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.8); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </>
   );
 }

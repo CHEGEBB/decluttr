@@ -33,6 +33,7 @@ const productSchema = new mongoose.Schema({
       required: true
     }
   }],
+  
   listingType: {
     type: String,
     required: [true, 'Please select listing type'],

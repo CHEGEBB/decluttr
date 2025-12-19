@@ -9,24 +9,16 @@ import {
   Footprints, 
   Sofa, 
   BookOpen, 
-  Glasses,
-  ChevronRight,
-  Star,
-  Heart,
-  ShoppingCart,
-  MapPin,
-  Truck
+  Glasses
 } from 'lucide-react';
 import { Navbar } from '@/components/marketplace/Navbar';
 import Footer from '@/components/footer';
 import { 
   FilterSidebar, 
-  CategorySection, 
-  ShopHeader,
-  WhyShopWithUs 
+  ShopHeader
 } from '@/components/shop';
-import Link from 'next/link';
 import { InfiniteMarquee } from '@/components/marketplace/InfiniteMarquee';
+import ProductCard from '@/components/shop/ProductCard';
 
 // Define category type
 type CategoryName = 
@@ -86,124 +78,12 @@ function isCategoryName(category: string): category is CategoryName {
   return category in categoryBackgrounds;
 }
 
-// Product Card Component
-function ProductCard({ product, isFavorite, onToggleFavorite, onAddToCart }: any) {
-  const mainImage = product.images && product.images.length > 0 
-    ? product.images[0].url 
-    : product.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop';
-
-  return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group border border-gray-100 h-full flex flex-col">
-      {/* Product Image */}
-      <div className="relative aspect-square overflow-hidden bg-gray-100">
-        <img
-          src={mainImage}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-        />
-        
-        {/* Badges */}
-        <div className="absolute top-4 left-4 flex flex-col gap-2">
-          {(product.type === 'Donation' || product.listingType === 'donation') && (
-            <span className="px-4 py-2 bg-green-500 text-white text-sm font-bold rounded-full shadow-lg">
-              FREE
-            </span>
-          )}
-          {product.originalPrice && (
-            <span className="px-4 py-2 bg-red-500 text-white text-sm font-bold rounded-full shadow-lg">
-              SALE
-            </span>
-          )}
-        </div>
-        
-        {/* Favorite Button */}
-        <button
-          onClick={() => onToggleFavorite(product.id)}
-          className="absolute top-4 right-4 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-        >
-          <Heart className={`w-6 h-6 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
-        </button>
-      </div>
-
-      {/* Product Details */}
-      <div className="p-5 flex-1 flex flex-col">
-        {/* Category & Condition */}
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg">
-            {product.category}
-          </span>
-          <span className="text-sm text-gray-600 font-medium">{product.condition}</span>
-        </div>
-
-        {/* Product Name */}
-        <h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2 min-h-[3.5rem]">
-          {product.name}
-        </h3>
-
-        {/* Rating */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex items-center">
-            <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-            <span className="text-base font-semibold text-gray-700 ml-1.5">{product.rating}</span>
-          </div>
-          <span className="text-sm text-gray-500">({product.reviews || product.views || 0} reviews)</span>
-        </div>
-
-        {/* Location & Delivery */}
-        <div className="flex flex-col gap-2 mb-4 text-sm text-gray-600">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-red-500" />
-            <span>{product.location}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Truck className="w-4 h-4 text-blue-500" />
-            <span className="font-medium">{product.delivery || 'Delivery Available'}</span>
-          </div>
-        </div>
-
-        {/* Price & Action */}
-        <div className="mt-auto pt-4 border-t border-gray-100">
-          <div className="flex items-end justify-between mb-4">
-            <div>
-              {(product.type === 'Donation' || product.listingType === 'donation') ? (
-                <div className="text-3xl font-black text-green-600">FREE</div>
-              ) : (
-                <>
-                  <div className="text-3xl font-black text-gray-900">
-                    KSh {product.price.toLocaleString()}
-                  </div>
-                  {product.originalPrice && (
-                    <div className="text-base text-gray-500 line-through mt-1">
-                      KSh {product.originalPrice.toLocaleString()}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-          
-          <Link href={`/main/product/${product.id}`}>
-            <button
-              onClick={() => onAddToCart(product)}
-              className="w-full py-3.5 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-xl hover:from-red-700 hover:to-red-800 transition-all hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              Add to Cart
-            </button>
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // Category Section Component with Background Image
 function CategorySectionWithBg({ 
   category, 
   products, 
   favorites, 
   onToggleFavorite, 
-  onAddToCart,
   icon: Icon,
   backgroundImage,
   gradient
@@ -241,9 +121,9 @@ function CategorySectionWithBg({
           <ProductCard
             key={product.id}
             product={product}
+            productId={product.id}
             isFavorite={favorites.includes(product.id)}
             onToggleFavorite={onToggleFavorite}
-            onAddToCart={onAddToCart}
           />
         ))}
       </div>
@@ -258,18 +138,9 @@ export default function ShopPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 200000 });
-  const [cartCount, setCartCount] = useState(3);
   const [favorites, setFavorites] = useState<number[]>([]);
-  const [windowWidth, setWindowWidth] = useState(0);
   const [productsByCategory, setProductsByCategory] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setWindowWidth(window.innerWidth);
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -322,8 +193,6 @@ export default function ShopPage() {
     }
   };
 
-  const allProducts = Object.values(productsByCategory).flat();
-
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
@@ -334,10 +203,6 @@ export default function ShopPage() {
         ? prev.filter(item => item !== id)
         : [...prev, id]
     );
-  };
-
-  const addToCart = (product: any) => {
-    setCartCount(prev => prev + 1);
   };
 
   const toggleCondition = (condition: string) => {
@@ -384,7 +249,7 @@ export default function ShopPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         <InfiniteMarquee />
-        <Navbar cartCount={cartCount} onSearch={handleSearch} />
+        <Navbar onSearch={handleSearch} />
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
@@ -398,8 +263,7 @@ export default function ShopPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <InfiniteMarquee />
-
-      <Navbar cartCount={cartCount} onSearch={handleSearch} />
+      <Navbar onSearch={handleSearch} />
       
       <ShopHeader
         showSpecificCategory={showSpecificCategory}
@@ -416,12 +280,12 @@ export default function ShopPage() {
         setPriceRange={setPriceRange}
         setSelectedCategory={setSelectedCategory}
         resetFilters={resetFilters}
-        cartCount={cartCount}
+        cartCount={0}
       />
 
       <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-          {/* Filter Sidebar - Fixed positioning */}
+          {/* Filter Sidebar */}
           <div className="lg:w-80 flex-shrink-0">
             <div className="lg:sticky lg:top-24">
               <FilterSidebar
@@ -447,9 +311,9 @@ export default function ShopPage() {
                     <ProductCard
                       key={product.id}
                       product={product}
+                      productId={product.id}
                       isFavorite={favorites.includes(product.id)}
                       onToggleFavorite={toggleFavorite}
-                      onAddToCart={addToCart}
                     />
                   ))}
                 </div>
@@ -467,12 +331,9 @@ export default function ShopPage() {
                 </div>
               )
             ) : (
-              /* Show All Categories with Background Images */
               <>
                 {Object.entries(filteredCategories).map(([category, products]) => {
                   const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
-                  
-                  // Use type guard to check if categoryName is valid
                   const safeCategory = isCategoryName(categoryName) ? categoryName : 'Electronics';
                   
                   return (
@@ -482,7 +343,6 @@ export default function ShopPage() {
                       products={products}
                       favorites={favorites}
                       onToggleFavorite={toggleFavorite}
-                      onAddToCart={addToCart}
                       icon={categoryIcons[safeCategory]}
                       backgroundImage={categoryBackgrounds[safeCategory]}
                       gradient={categoryGradients[safeCategory]}

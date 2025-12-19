@@ -3,6 +3,7 @@
 
 export interface Product {
   id: string;
+  _id?: string; // Backend MongoDB ID
   name: string;
   description: string;
   images: { public_id: string; url: string }[];
