@@ -24,9 +24,9 @@ import {
   QrCode
 } from 'lucide-react';
 import Link from 'next/link';
-import { Navbar } from '@/components/marketplace/Navbar';
-import Footer from '@/components/footer';
-import { InfiniteMarquee } from '@/components/marketplace/InfiniteMarquee';
+import { Navbar } from '@/Frontend/components/marketplace/Navbar';
+import Footer from '@/Frontend/components/footer';
+import { InfiniteMarquee } from '@/Frontend/components/marketplace/InfiniteMarquee';
 
 // Mock order data from cart
 // Generate consistent order ID based on a fixed timestamp

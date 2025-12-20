@@ -11,7 +11,7 @@ import {
   ShoppingCart,
   CheckCircle2
 } from 'lucide-react';
-import { useCartContext } from '@/context/CartContext';
+import { useCartContext } from '@/Frontend/context/CartContext';
 
 interface ProductCardProps {
   product: {

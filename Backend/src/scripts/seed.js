@@ -1389,7 +1389,7 @@ const mockProducts = [
 async function seedDatabase() {
     try {
       // Connect to MongoDB (use .env or fallback to hardcoded URI)
-      const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://CHEGEBB:Phil%402003@glamour.cjncwua.mongodb.net/decluttr';
+      const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://juliusmuthoni22_db_user:vmX9mZibMqTXSkqR@cluster0.qaaybno.mongodb.net/decluttr';
       console.log('🔌 Connecting to MongoDB...');
   
       await mongoose.connect(mongoUri);
