@@ -90,6 +90,7 @@ exports.createOrder = async (req, res) => {
 exports.getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ buyer: req.user._id })
+      .populate('buyer', 'name email phoneNumber location')
       .populate('items.seller', 'name username phoneNumber')
       .sort({ createdAt: -1 });
 
@@ -109,19 +110,36 @@ exports.getMyOrders = async (req, res) => {
 
 exports.getReceivedOrders = async (req, res) => {
   try {
+    console.log('🔍 getReceivedOrders - User ID:', req.user._id);
+    console.log('🔍 getReceivedOrders - User ID toString:', req.user._id.toString());
+
+    // Find all orders that contain items where this user is the seller
     const orders = await Order.find({ 'items.seller': req.user._id })
-      .populate('buyer', 'name username phoneNumber location')
+      .populate('buyer', 'name email phoneNumber location')
+      .populate('items.seller', 'name username phoneNumber')
       .sort({ createdAt: -1 });
 
+    console.log('🔍 Orders found (before filtering):', orders.length);
+
+    // Filter to only include items where the current user is the seller
     const filteredOrders = orders.map(order => {
-      const relevantItems = order.items.filter(
-        item => item.seller.toString() === req.user._id.toString()
-      );
+      const relevantItems = order.items.filter(item => {
+        // Handle both populated and non-populated seller
+        const sellerId = item.seller._id ? item.seller._id.toString() : item.seller.toString();
+        const userId = req.user._id.toString();
+        console.log('🔍 Comparing seller:', sellerId, 'with user:', userId);
+        return sellerId === userId;
+      });
+
+      console.log('🔍 Order:', order._id, '- Relevant items:', relevantItems.length);
+
       return {
         ...order.toObject(),
         items: relevantItems
       };
-    });
+    }).filter(order => order.items.length > 0); // Only return orders with relevant items
+
+    console.log('🔍 Orders after filtering:', filteredOrders.length);
 
     res.status(200).json({
       success: true,
@@ -129,6 +147,7 @@ exports.getReceivedOrders = async (req, res) => {
       data: filteredOrders
     });
   } catch (error) {
+    console.error('❌ getReceivedOrders error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch received orders',
@@ -149,10 +168,12 @@ exports.getOrder = async (req, res) => {
         message: 'Order not found'
       });
     }
+
     const isBuyer = order.buyer._id.toString() === req.user._id.toString();
-    const isSeller = order.items.some(
-      item => item.seller._id.toString() === req.user._id.toString()
-    );
+    const isSeller = order.items.some(item => {
+      const sellerId = item.seller._id ? item.seller._id.toString() : item.seller.toString();
+      return sellerId === req.user._id.toString();
+    });
 
     if (!isBuyer && !isSeller) {
       return res.status(403).json({
@@ -194,9 +215,10 @@ exports.updateOrderStatus = async (req, res) => {
       });
     }
 
-    const isSeller = order.items.some(
-      item => item.seller.toString() === req.user._id.toString()
-    );
+    const isSeller = order.items.some(item => {
+      const sellerId = item.seller._id ? item.seller._id.toString() : item.seller.toString();
+      return sellerId === req.user._id.toString();
+    });
 
     if (!isSeller && req.user.role !== 'admin') {
       return res.status(403).json({
@@ -216,7 +238,8 @@ exports.updateOrderStatus = async (req, res) => {
       }
 
       for (const item of order.items) {
-        await User.findByIdAndUpdate(item.seller, {
+        const sellerId = item.seller._id || item.seller;
+        await User.findByIdAndUpdate(sellerId, {
           $inc: {
             totalIncome: item.price,
             totalExchanges: 1
@@ -230,6 +253,12 @@ exports.updateOrderStatus = async (req, res) => {
     }
 
     await order.save();
+
+    // Populate before sending response
+    await order.populate([
+      { path: 'buyer', select: 'name email phoneNumber location' },
+      { path: 'items.seller', select: 'name username phoneNumber' }
+    ]);
 
     res.status(200).json({
       success: true,

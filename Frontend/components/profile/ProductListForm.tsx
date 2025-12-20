@@ -253,7 +253,7 @@ const ProductListForm = () => {
                 multiple
                 accept="image/*"
                 onChange={handleImageUpload}
-                className="hidden"
+                className="hidden placeholder:text-gray-400 text-gray-500"
               />
             </div>
 
@@ -299,7 +299,7 @@ const ProductListForm = () => {
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              className="w-full px-4 py-3 border placeholder:text-gray-400 text-gray-500 border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               placeholder="e.g., iPhone 13 Pro 256GB Like New"
               maxLength={100}
             />
@@ -314,7 +314,7 @@ const ProductListForm = () => {
               value={formData.category}
               onChange={(e) => setFormData({...formData, category: e.target.value})}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 bg-white"
+              className="w-full px-4 py-3 border placeholder:text-gray-400 text-gray-500 border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 bg-white"
             >
               <option value="">Select a category</option>
               {categories.map((category) => (
@@ -332,7 +332,7 @@ const ProductListForm = () => {
               value={formData.condition}
               onChange={(e) => setFormData({...formData, condition: e.target.value})}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 bg-white"
+              className="w-full px-4 py-3 border placeholder:text-gray-400 text-gray-500 border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 bg-white"
             >
               <option value="">Select condition</option>
               {conditions.map((condition) => (
@@ -354,7 +354,7 @@ const ProductListForm = () => {
                   value="resale"
                   checked={formData.listingType === 'resale'}
                   onChange={(e) => setFormData({...formData, listingType: 'resale' as any})}
-                  className="mr-2"
+                  className="mr-2 placeholder:text-gray-400 text-gray-500"
                 />
                 <span className="text-gray-700">Resale</span>
               </label>
@@ -365,7 +365,7 @@ const ProductListForm = () => {
                   value="donation"
                   checked={formData.listingType === 'donation'}
                   onChange={(e) => setFormData({...formData, listingType: 'donation' as any})}
-                  className="mr-2"
+                  className="mr-2 placeholder:text-gray-400 text-gray-500"
                 />
                 <span className="text-gray-700">Donation</span>
               </label>
@@ -385,7 +385,7 @@ const ProductListForm = () => {
                   value={formData.price || ''}
                   onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value) || 0})}
                   required={formData.listingType === 'resale'}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  className="w-full pl-10 pr-4 py-3 border placeholder:text-gray-400 text-gray-500 border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                   placeholder="Enter price"
                   min="0"
                 />
@@ -402,7 +402,7 @@ const ProductListForm = () => {
               value={formData.location}
               onChange={(e) => setFormData({...formData, location: e.target.value})}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 bg-white"
+              className="w-full px-4 py-3 border placeholder:text-gray-400 text-gray-500 border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 bg-white"
             >
               {locations.map((location) => (
                 <option key={location} value={location}>{location}</option>
@@ -421,7 +421,7 @@ const ProductListForm = () => {
             onChange={(e) => setFormData({...formData, description: e.target.value})}
             required
             rows={6}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 resize-none"
+            className="w-full px-4 py-3 border placeholder:text-gray-400 text-gray-500 border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 resize-none"
             placeholder="Describe your item in detail. Include features, specifications, and any flaws..."
             maxLength={1000}
           />
@@ -440,7 +440,7 @@ const ProductListForm = () => {
               type="text"
               value={formData.brand || ''}
               onChange={(e) => setFormData({...formData, brand: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              className="w-full px-4 py-3 border border-gray-300 placeholder:text-gray-400 text-gray-500 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               placeholder="e.g., Apple, Nike, etc."
             />
           </div>
@@ -453,7 +453,7 @@ const ProductListForm = () => {
               type="text"
               value={formData.model || ''}
               onChange={(e) => setFormData({...formData, model: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              className="w-full px-4 py-3 border border-gray-300 placeholder:text-gray-400 text-gray-500 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               placeholder="e.g., iPhone 13 Pro, Air Max 270, etc."
             />
           </div>
@@ -466,7 +466,7 @@ const ProductListForm = () => {
               type="text"
               value={formData.color || ''}
               onChange={(e) => setFormData({...formData, color: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg placeholder:text-gray-400 text-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               placeholder="e.g., Black, Red, Blue, etc."
             />
           </div>
@@ -479,7 +479,7 @@ const ProductListForm = () => {
               type="text"
               value={formData.size || ''}
               onChange={(e) => setFormData({...formData, size: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              className="w-full px-4 py-3 border border-gray-300 placeholder:text-gray-400 text-gray-500 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               placeholder="e.g., M, 42, Large, etc."
             />
           </div>

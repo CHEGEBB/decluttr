@@ -41,7 +41,7 @@ export function CategoryTabs({ categories, selectedCategory, onCategoryChange }:
           onClick={() => scroll('left')}
           className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center z-10 hover:border-red-600 hover:text-red-600 transition-colors"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-5 h-5 text-red-400" />
         </button>
       )}
       
@@ -50,7 +50,7 @@ export function CategoryTabs({ categories, selectedCategory, onCategoryChange }:
           onClick={() => scroll('right')}
           className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center z-10 hover:border-red-600 hover:text-red-600 transition-colors"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-5 h-5 text-red-400" />
         </button>
       )}
 
