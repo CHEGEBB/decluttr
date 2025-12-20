@@ -1,3 +1,4 @@
+// models/User.js - Add profileImage field
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -38,6 +39,17 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please select your location'],
     trim: true
+  },
+  // Add profileImage field
+  profileImage: {
+    public_id: {
+      type: String,
+      default: ''
+    },
+    url: {
+      type: String,
+      default: ''
+    }
   },
   role: {
     type: String,

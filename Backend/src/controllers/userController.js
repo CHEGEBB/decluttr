@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
+const cloudinary = require('../config/cloudinary'); // Your Cloudinary config
 
 exports.getDashboard = async (req, res) => {
   try {
@@ -79,8 +80,10 @@ exports.getMyProfile = async (req, res) => {
           username: user.username,
           email: user.email,
           location: user.location,
+          phoneNumber: user.phoneNumber,
           totalExchanges: user.totalExchanges,
           ratings: user.ratings,
+          profileImage: user.profileImage,
           createdAt: user.createdAt
         },
         products
@@ -135,6 +138,7 @@ exports.getUserProfile = async (req, res) => {
           location: user.location,
           totalExchanges: user.totalExchanges,
           ratings: user.ratings,
+          profileImage: user.profileImage,
           createdAt: user.createdAt
         },
         products,
@@ -150,9 +154,10 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
+// Update User Profile with all fields
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, location, bio } = req.body;
+    const { name, location, phoneNumber, email } = req.body;
 
     const user = await User.findById(req.user._id);
 
@@ -162,9 +167,12 @@ exports.updateProfile = async (req, res) => {
         message: 'User not found'
       });
     }
+
+    // Update fields if provided
     if (name) user.name = name;
     if (location) user.location = location;
-    if (bio !== undefined) user.bio = bio;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (email) user.email = email;
 
     await user.save();
 
@@ -177,10 +185,12 @@ exports.updateProfile = async (req, res) => {
           name: user.name,
           username: user.username,
           email: user.email,
+          phoneNumber: user.phoneNumber,
           location: user.location,
-          bio: user.bio,
+          profileImage: user.profileImage,
           totalExchanges: user.totalExchanges,
-          ratings: user.ratings
+          ratings: user.ratings,
+          totalIncome: user.totalIncome
         }
       }
     });
@@ -189,6 +199,126 @@ exports.updateProfile = async (req, res) => {
       success: false,
       message: 'Failed to update profile',
       error: error.message
+    });
+  }
+};
+
+// Upload Profile Image to Cloudinary
+exports.uploadProfileImage = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file uploaded'
+      });
+    }
+
+    // Delete old profile image from Cloudinary if exists
+    if (user.profileImage && user.profileImage.public_id) {
+      try {
+        await cloudinary.uploader.destroy(user.profileImage.public_id);
+      } catch (cloudinaryError) {
+        console.error('Error deleting old image from Cloudinary:', cloudinaryError);
+      }
+    }
+
+    // Upload new image to Cloudinary
+    const result = await cloudinary.uploader.upload(
+      `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`,
+      {
+        folder: 'decluttr/profile-images',
+        resource_type: 'auto',
+        transformation: [
+          { width: 400, height: 400, crop: 'fill', gravity: 'face' }, // Focus on face
+          { quality: 'auto:good' }
+        ]
+      }
+    );
+
+    // Update user profile image
+    user.profileImage = {
+      public_id: result.public_id,
+      url: result.secure_url
+    };
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile image uploaded successfully',
+      data: {
+        profileImage: user.profileImage
+      }
+    });
+  } catch (error) {
+    console.error('Upload profile image error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to upload profile image',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+};
+
+// Update User Profile with Image URL (for when image is uploaded separately)
+exports.updateProfileWithImage = async (req, res) => {
+  try {
+    const { name, location, phoneNumber, email, profileImage } = req.body;
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Update fields if provided
+    if (name) user.name = name;
+    if (location) user.location = location;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (email) user.email = email;
+    if (profileImage) {
+      user.profileImage = profileImage;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: {
+        user: {
+          _id: user._id,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+          location: user.location,
+          profileImage: user.profileImage,
+          totalExchanges: user.totalExchanges,
+          ratings: user.ratings,
+          totalIncome: user.totalIncome
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Update profile with image error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update profile',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 };

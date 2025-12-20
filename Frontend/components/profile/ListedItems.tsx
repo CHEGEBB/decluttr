@@ -1,150 +1,80 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-  Edit, 
-  Trash2, 
-  Eye, 
-  MoreVertical,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Package
+  Package,
+  Loader2
 } from 'lucide-react';
 import ProductCardCompact from './ProductCardCompact';
+import { Product } from '@/services/productService';
 
-interface ListedItem {
-  id: number;
-  name: string;
-  image: string;
-  category: string;
-  type: 'Resale' | 'Donation';
-  price: number;
-  status: 'Active' | 'Sold' | 'Pending' | 'Draft';
-  views: number;
-  createdAt: string;
-  condition: string;
+interface ListedItemsProps {
+  products: Product[];
+  loading: boolean;
+  onEditProduct: (id: string) => void;
+  onDeleteProduct: (id: string) => void;
 }
 
-const ListedItems = () => {
+const ListedItems = ({ products, loading, onEditProduct, onDeleteProduct }: ListedItemsProps) => {
   const [selectedFilter, setSelectedFilter] = useState('all');
-  
-  const items: ListedItem[] = [
-    {
-      id: 1,
-      name: 'iPhone 13 Pro 256GB',
-      image: 'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=400&h=400&fit=crop',
-      category: 'Electronics',
-      type: 'Resale',
-      price: 85000,
-      status: 'Active',
-      views: 245,
-      createdAt: '2024-12-10',
-      condition: 'Like New'
-    },
-    {
-      id: 2,
-      name: 'Leather Jacket',
-      image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop',
-      category: 'Clothes',
-      type: 'Resale',
-      price: 12500,
-      status: 'Sold',
-      views: 189,
-      createdAt: '2024-12-05',
-      condition: 'Excellent'
-    },
-    {
-      id: 3,
-      name: 'Nike Air Max 270',
-      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop',
-      category: 'Shoes',
-      type: 'Resale',
-      price: 13500,
-      status: 'Active',
-      views: 312,
-      createdAt: '2024-12-01',
-      condition: 'New'
-    },
-    {
-      id: 4,
-      name: 'Harry Potter Book Set',
-      image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=400&fit=crop',
-      category: 'Books',
-      type: 'Donation',
-      price: 0,
-      status: 'Pending',
-      views: 156,
-      createdAt: '2024-11-28',
-      condition: 'Good'
-    },
-    {
-      id: 5,
-      name: 'Modern Study Desk',
-      image: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=400&h=400&fit=crop',
-      category: 'Furniture',
-      type: 'Resale',
-      price: 28000,
-      status: 'Active',
-      views: 98,
-      createdAt: '2024-11-25',
-      condition: 'Excellent'
-    },
-    {
-      id: 6,
-      name: 'Designer Handbag',
-      image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=400&fit=crop',
-      category: 'Accessories',
-      type: 'Resale',
-      price: 45000,
-      status: 'Draft',
-      views: 0,
-      createdAt: '2024-11-20',
-      condition: 'Excellent'
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+
+  useEffect(() => {
+    if (selectedFilter === 'all') {
+      setFilteredProducts(products);
+    } else {
+      setFilteredProducts(
+        products.filter(product => 
+          product.status.toLowerCase() === selectedFilter.toLowerCase()
+        )
+      );
     }
-  ];
+  }, [selectedFilter, products]);
 
   const filters = [
-    { id: 'all', label: 'All Items', count: items.length },
-    { id: 'active', label: 'Active', count: items.filter(i => i.status === 'Active').length },
-    { id: 'sold', label: 'Sold', count: items.filter(i => i.status === 'Sold').length },
-    { id: 'pending', label: 'Pending', count: items.filter(i => i.status === 'Pending').length },
-    { id: 'draft', label: 'Drafts', count: items.filter(i => i.status === 'Draft').length }
+    { id: 'all', label: 'All Items', count: products.length },
+    { id: 'available', label: 'Available', count: products.filter(p => p.status === 'available').length },
+    { id: 'pending', label: 'Pending', count: products.filter(p => p.status === 'pending').length },
+    { id: 'sold', label: 'Sold', count: products.filter(p => p.status === 'sold').length }
   ];
-
-  const filteredItems = selectedFilter === 'all' 
-    ? items 
-    : items.filter(item => item.status.toLowerCase() === selectedFilter);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'Active':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'Sold':
-        return <CheckCircle className="w-4 h-4 text-blue-500" />;
-      case 'Pending':
-        return <Clock className="w-4 h-4 text-amber-500" />;
-      case 'Draft':
-        return <XCircle className="w-4 h-4 text-gray-400" />;
+      case 'available':
+        return <div className="w-3 h-3 rounded-full bg-green-500" />;
+      case 'sold':
+        return <div className="w-3 h-3 rounded-full bg-blue-500" />;
+      case 'pending':
+        return <div className="w-3 h-3 rounded-full bg-amber-500" />;
       default:
-        return <Clock className="w-4 h-4 text-gray-400" />;
+        return <div className="w-3 h-3 rounded-full bg-gray-400" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Active':
+      case 'available':
         return 'bg-green-100 text-green-800';
-      case 'Sold':
+      case 'sold':
         return 'bg-blue-100 text-blue-800';
-      case 'Pending':
+      case 'pending':
         return 'bg-amber-100 text-amber-800';
-      case 'Draft':
-        return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 text-red-600 animate-spin" />
+          <span className="ml-3 text-gray-600">Loading your products...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
@@ -155,7 +85,10 @@ const ListedItems = () => {
             <h2 className="text-xl font-bold text-gray-900">Your Listed Items</h2>
             <p className="text-gray-600">Manage your products and track their performance</p>
           </div>
-          <button className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all">
+          <button 
+            onClick={() => window.location.href = '/main/profile?tab=list-item'}
+            className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all"
+          >
             + Add New Item
           </button>
         </div>
@@ -189,15 +122,15 @@ const ListedItems = () => {
 
       {/* Items Grid */}
       <div className="p-6">
-        {filteredItems.length > 0 ? (
+        {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item) => (
+            {filteredProducts.map((product) => (
               <ProductCardCompact
-                key={item.id}
-                item={item}
-                onEdit={() => console.log('Edit', item.id)}
-                onDelete={() => console.log('Delete', item.id)}
-                onView={() => console.log('View', item.id)}
+                key={product.id}
+                product={product}
+                onEdit={() => onEditProduct(product.id)}
+                onDelete={() => onDeleteProduct(product.id)}
+                onView={() => window.location.href = `/products/${product.id}`}
                 getStatusIcon={getStatusIcon}
                 getStatusColor={getStatusColor}
               />
@@ -210,7 +143,10 @@ const ListedItems = () => {
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">No items found</h3>
             <p className="text-gray-600 mb-6">You haven&apos;t listed any items yet</p>
-            <button className="px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors">
+            <button 
+              onClick={() => window.location.href = '/main/profile?tab=list-item'}
+              className="px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors"
+            >
               List Your First Item
             </button>
           </div>
@@ -221,24 +157,24 @@ const ListedItems = () => {
       <div className="p-6 border-t border-gray-200 bg-gray-50">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center p-3 bg-white rounded-lg">
-            <div className="text-lg font-bold text-gray-900">{items.length}</div>
+            <div className="text-lg font-bold text-gray-900">{products.length}</div>
             <div className="text-xs text-gray-600">Total Items</div>
           </div>
           <div className="text-center p-3 bg-white rounded-lg">
             <div className="text-lg font-bold text-gray-900">
-              {items.filter(i => i.status === 'Active').length}
+              {products.filter(p => p.status === 'available').length}
             </div>
             <div className="text-xs text-gray-600">Active Listings</div>
           </div>
           <div className="text-center p-3 bg-white rounded-lg">
             <div className="text-lg font-bold text-gray-900">
-              KSh {items.filter(i => i.status === 'Sold').reduce((sum, item) => sum + item.price, 0).toLocaleString()}
+              KSh {products.filter(p => p.status === 'sold').reduce((sum, item) => sum + (item.price || 0), 0).toLocaleString()}
             </div>
             <div className="text-xs text-gray-600">Total Sales</div>
           </div>
           <div className="text-center p-3 bg-white rounded-lg">
             <div className="text-lg font-bold text-gray-900">
-              {items.reduce((sum, item) => sum + item.views, 0)}
+              {products.reduce((sum, item) => sum + item.views, 0)}
             </div>
             <div className="text-xs text-gray-600">Total Views</div>
           </div>

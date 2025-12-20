@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { signup, login, getMe, logout } = require('../controllers/authController');
+const { signup, login, getMe, logout, changePassword } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
 console.log(' Auth routes loaded');
@@ -17,5 +17,7 @@ router.post('/login', (req, res, next) => {
 
 router.get('/me', protect, getMe);
 router.post('/logout', protect, logout);
+router.put('/change-password', protect, changePassword);
+
 
 module.exports = router;

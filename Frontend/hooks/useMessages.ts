@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // hooks/useMessages.ts
 // Custom hook for managing messages
 

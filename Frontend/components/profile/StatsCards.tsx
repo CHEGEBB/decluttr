@@ -1,13 +1,19 @@
 'use client';
 
 import { TrendingUp, Users, Star, DollarSign } from 'lucide-react';
+import { User } from '@/services/authService';
 
-const StatsCards = () => {
+interface StatsCardsProps {
+  user: User | null;
+  productCount: number;
+}
+
+const StatsCards = ({ user, productCount }: StatsCardsProps) => {
   const stats = [
     {
       title: 'Total Income',
-      value: 'KSh 245,800',
-      change: '+12.5%',
+      value: `KSh ${user?.totalIncome?.toLocaleString() || '0'}`,
+      change: '+0%',
       icon: DollarSign,
       color: 'from-green-500 to-emerald-600',
       bgColor: 'bg-green-50',
@@ -15,8 +21,8 @@ const StatsCards = () => {
     },
     {
       title: 'Total Exchanges',
-      value: '47',
-      change: '+8.2%',
+      value: `${user?.totalExchanges || 0}`,
+      change: '+0%',
       icon: Users,
       color: 'from-blue-500 to-cyan-600',
       bgColor: 'bg-blue-50',
@@ -24,8 +30,8 @@ const StatsCards = () => {
     },
     {
       title: 'User Ratings',
-      value: '4.8',
-      change: '+0.3',
+      value: `${user?.ratings?.toFixed(1) || '0.0'}`,
+      change: '+0.0',
       icon: Star,
       color: 'from-amber-500 to-orange-600',
       bgColor: 'bg-amber-50',
@@ -33,8 +39,8 @@ const StatsCards = () => {
     },
     {
       title: 'Active Listings',
-      value: '18',
-      change: '+3',
+      value: `${productCount || 0}`,
+      change: '+0',
       icon: TrendingUp,
       color: 'from-purple-500 to-pink-600',
       bgColor: 'bg-purple-50',

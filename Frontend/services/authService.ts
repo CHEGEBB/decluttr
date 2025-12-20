@@ -203,7 +203,83 @@ export interface User {
         this.clearAuth();
       }
     }
-  
+
+/**
+ * Change user password
+ */
+async changePassword(passwordData: { currentPassword: string; newPassword: string }): Promise<any> {
+  try {
+    const token = this.getToken();
+    
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const response = await fetch(`${this.baseUrl}/auth/change-password`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(passwordData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw {
+        success: false,
+        message: data.message || 'Failed to change password',
+        error: data.error,
+      } as ApiError;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Change password error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Upload profile image
+ */
+// Add this method to authService.ts
+async uploadProfileImage(imageFile: File): Promise<any> {
+  try {
+    const token = this.getToken();
+    
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const formData = new FormData();
+    formData.append('profileImage', imageFile);
+
+    const response = await fetch(`${this.baseUrl}/users/upload-profile-image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw {
+        success: false,
+        message: data.message || 'Failed to upload profile image',
+        error: data.error,
+      } as ApiError;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Upload profile image error:', error);
+    throw error;
+  }
+}
     /**
      * Check if user is authenticated
      */

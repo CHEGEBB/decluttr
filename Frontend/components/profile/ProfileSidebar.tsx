@@ -14,36 +14,33 @@ import {
   Edit
 } from 'lucide-react';
 import Image from 'next/image';
+import { User as UserType } from '@/services/authService';
 
 interface ProfileSidebarProps {
+  user: UserType | null;
   activeTab: string;
   onTabChange: (tab: string) => void;
   onLogout: () => void;
 }
 
-const ProfileSidebar = ({ activeTab, onTabChange, onLogout }: ProfileSidebarProps) => {
-  const userData = {
-    name: 'John Mwangi',
-    email: 'john@declutrr.com',
-    location: 'Nairobi, Kenya',
-    phone: '+254 712 345 678',
-    joinDate: 'Jan 2024',
-    rating: 4.8,
-    verified: true
-  };
-
+const ProfileSidebar = ({ user, activeTab, onTabChange, onLogout }: ProfileSidebarProps) => {
+  // Remove notifications tab if not in this sprint
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: User },
     { id: 'list-item', label: 'List Product', icon: Package },
     { id: 'messages', label: 'Messages', icon: MessageCircle },
     { id: 'orders', label: 'My Orders', icon: ShoppingBag },
     { id: 'settings', label: 'Settings', icon: Settings },
-    { id: 'notifications', label: 'Notifications', icon: Bell }
+    // { id: 'notifications', label: 'Notifications', icon: Bell } // Removed as per requirements
   ];
+
+  const handleEditProfile = () => {
+    onTabChange('settings');
+  };
 
   const handleMessages = () => {
     window.location.href = '/main/messages';
-  }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 h-fit lg:sticky lg:top-24">
@@ -51,50 +48,42 @@ const ProfileSidebar = ({ activeTab, onTabChange, onLogout }: ProfileSidebarProp
       <div className="text-center mb-8">
         <div className="relative mx-auto mb-4">
           <div className="w-24 h-24 bg-red-400 rounded-full mx-auto flex items-center justify-center">
-            <Image
-                src="https://images.unsplash.com/photo-1659422440915-d516c6dc932e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGFmcmljYW4lMjBtYW58ZW58MHx8MHx8fDA%3D"
-                alt="Profile Picture"
-                width={96}
-                height={96}
-                className="w-24 h-24 rounded-full object-cover border-3 border-emerald-400"
-            />
-          </div>
-          {userData.verified && (
-            <div className="absolute bottom-2 right-6 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
-              <Shield className="w-3 h-3 text-white" />
+            {/* Replace with user's actual profile picture */}
+            <div className="w-24 h-24 rounded-full bg-gradient-to-r from-red-500 to-pink-500 flex items-center justify-center text-white text-2xl font-bold">
+              {user?.name?.charAt(0) || 'U'}
             </div>
-          )}
+          </div>
         </div>
         
-        <h2 className="text-xl font-bold text-gray-900 mb-1">{userData.name}</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">{user?.name || 'User'}</h2>
         <div className="flex items-center justify-center gap-1 mb-2">
           <div className="flex">
             {[...Array(5)].map((_, i) => (
               <div 
                 key={i}
-                className={`w-4 h-4 ${i < Math.floor(userData.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                className={`w-4 h-4 ${i < Math.floor(user?.ratings || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
               >
                 ★
               </div>
             ))}
           </div>
-          <span className="text-sm text-gray-600">({userData.rating})</span>
+          <span className="text-sm text-gray-600">({user?.ratings?.toFixed(1) || '0.0'})</span>
         </div>
         
         <div className="space-y-2 text-sm text-gray-600">
           <div className="flex items-center justify-center gap-2">
             <Mail className="w-4 h-4" />
-            <span>{userData.email}</span>
+            <span>{user?.email || 'No email provided'}</span>
           </div>
           <div className="flex items-center justify-center gap-2">
             <MapPin className="w-4 h-4" />
-            <span>{userData.location}</span>
+            <span>{user?.location || 'Nairobi, Kenya'}</span>
           </div>
         </div>
         
         <div className="mt-4">
           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-            Member since {userData.joinDate}
+            @{user?.username || 'username'}
           </span>
         </div>
       </div>
@@ -119,7 +108,7 @@ const ProfileSidebar = ({ activeTab, onTabChange, onLogout }: ProfileSidebarProp
               <span>{tab.label}</span>
               {tab.id === 'messages' && (
                 <span className="ml-auto bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  3
+                  0
                 </span>
               )}
             </button>
@@ -129,7 +118,10 @@ const ProfileSidebar = ({ activeTab, onTabChange, onLogout }: ProfileSidebarProp
 
       {/* Actions */}
       <div className="space-y-3">
-        <button className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-gray-900 to-black text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all">
+        <button 
+          onClick={handleEditProfile}
+          className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-gray-900 to-black text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all"
+        >
           <Edit className="w-4 h-4" />
           Edit Profile
         </button>
@@ -148,20 +140,12 @@ const ProfileSidebar = ({ activeTab, onTabChange, onLogout }: ProfileSidebarProp
         <h3 className="font-semibold text-gray-900 mb-3">Quick Stats</h3>
         <div className="grid grid-cols-2 gap-3">
           <div className="text-center p-2 bg-blue-50 rounded-lg">
-            <div className="text-lg font-bold text-gray-900">12</div>
-            <div className="text-xs text-gray-600">Items Listed</div>
+            <div className="text-lg font-bold text-gray-900">{user?.totalExchanges || 0}</div>
+            <div className="text-xs text-gray-600">Total Exchanges</div>
           </div>
           <div className="text-center p-2 bg-green-50 rounded-lg">
-            <div className="text-lg font-bold text-gray-900">8</div>
-            <div className="text-xs text-gray-600">Items Sold</div>
-          </div>
-          <div className="text-center p-2 bg-purple-50 rounded-lg">
-            <div className="text-lg font-bold text-gray-900">5</div>
-            <div className="text-xs text-gray-600">Donations</div>
-          </div>
-          <div className="text-center p-2 bg-amber-50 rounded-lg">
-            <div className="text-lg font-bold text-gray-900">KSh 45,000</div>
-            <div className="text-xs text-gray-600">Earnings</div>
+            <div className="text-lg font-bold text-gray-900">{user?.totalIncome?.toLocaleString() || '0'}</div>
+            <div className="text-xs text-gray-600">Total Income</div>
           </div>
         </div>
       </div>

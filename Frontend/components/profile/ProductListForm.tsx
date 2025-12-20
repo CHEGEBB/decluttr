@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useRef } from 'react';
@@ -7,28 +8,38 @@ import {
   Camera, 
   Package, 
   DollarSign,
-  Calendar,
   Hash,
   Shield,
-  Check
+  Check,
+  Loader2
 } from 'lucide-react';
+import { useProducts } from '@/hooks/useProducts';
+import { CreateProductData } from '@/services/productService';
 
 const ProductListForm = () => {
-  const [formData, setFormData] = useState({
-    title: '',
+  const { createProduct, isCreating } = useProducts();
+  const [formData, setFormData] = useState<CreateProductData>({
+    name: '',
     description: '',
     category: '',
-    condition: '',
-    type: 'Resale',
-    price: '',
-    quantity: '1',
+    listingType: 'resale',
+    price: 0,
+    images: [],
+    condition: 'Good',
     location: 'Nairobi',
-    contactInfo: ''
+    brand: '',
+    model: '',
+    color: '',
+    size: '',
+    material: '',
+    warranty: '',
+    tags: []
   });
 
   const [images, setImages] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const categories = [
@@ -70,49 +81,112 @@ const ProductListForm = () => {
     if (!files) return;
 
     const newImages: string[] = [];
-    for (let i = 0; i < Math.min(files.length, 5); i++) {
+    const newImageFiles: File[] = [];
+    
+    for (let i = 0; i < Math.min(files.length, 5 - imageFiles.length); i++) {
       const file = files[i];
       const reader = new FileReader();
       reader.onloadend = () => {
         newImages.push(reader.result as string);
-        if (newImages.length === Math.min(files.length, 5)) {
+        if (newImages.length === Math.min(files.length, 5 - imageFiles.length)) {
           setImages(prev => [...prev, ...newImages].slice(0, 5));
         }
       };
       reader.readAsDataURL(file);
+      newImageFiles.push(file);
     }
+    
+    setImageFiles(prev => [...prev, ...newImageFiles].slice(0, 5));
+    setFormData(prev => ({ ...prev, images: [...prev.images, ...newImageFiles].slice(0, 5) }));
   };
 
   const removeImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        title: '',
-        description: '',
-        category: '',
-        condition: '',
-        type: 'Resale',
-        price: '',
-        quantity: '1',
-        location: 'Nairobi',
-        contactInfo: ''
-      });
-      setImages([]);
-    }, 3000);
+    setError(null);
+
+    // Validation
+    if (!formData.name || !formData.description || !formData.category) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    if (formData.listingType === 'resale' && (!formData.price || formData.price <= 0)) {
+      setError('Please enter a valid price for resale items');
+      return;
+    }
+
+    if (formData.images.length === 0) {
+      setError('Please upload at least one image');
+      return;
+    }
+
+    try {
+      const productData: CreateProductData = {
+        ...formData,
+        // Ensure price is included for resale
+        price: formData.listingType === 'resale' ? formData.price : undefined,
+        // Map category to backend format
+        category: mapCategoryToBackend(formData.category),
+        // Convert tags string to array if needed
+        tags: formData.tags ? (Array.isArray(formData.tags) ? formData.tags : [formData.tags]) : []
+      };
+
+      const response = await createProduct(productData);
+      
+      if (response.success) {
+        setIsSubmitted(true);
+        
+        // Reset form
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setFormData({
+            name: '',
+            description: '',
+            category: '',
+            listingType: 'resale',
+            price: 0,
+            images: [],
+            condition: 'Good',
+            location: 'Nairobi',
+            brand: '',
+            model: '',
+            color: '',
+            size: '',
+            material: '',
+            warranty: '',
+            tags: []
+          });
+          setImages([]);
+          setImageFiles([]);
+        }, 3000);
+      } else {
+        setError(response.message || 'Failed to create product');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to create product');
+    }
+  };
+
+  const mapCategoryToBackend = (category: string): string => {
+    const mapping: Record<string, string> = {
+      'Electronics': 'Electronics',
+      'Clothes': 'Clothes',
+      'Shoes': 'Shoes',
+      'Furniture': 'Furniture',
+      'Books': 'Books',
+      'Accessories': 'Accessories',
+      'Home & Garden': 'Home',
+      'Sports & Fitness': 'Sports',
+      'Toys & Games': 'Entertainment',
+      'Other': 'Other'
+    };
+    return mapping[category] || 'Other';
   };
 
   if (isSubmitted) {
@@ -132,7 +206,10 @@ const ProductListForm = () => {
           >
             List Another Item
           </button>
-          <button className="px-6 py-3 border-2 border-gray-200 text-gray-700 font-bold rounded-lg hover:border-red-500 hover:text-red-600 transition-all">
+          <button 
+            onClick={() => window.location.href = '/main/profile?tab=dashboard'}
+            className="px-6 py-3 border-2 border-gray-200 text-gray-700 font-bold rounded-lg hover:border-red-500 hover:text-red-600 transition-all"
+          >
             View Your Listings
           </button>
         </div>
@@ -146,6 +223,12 @@ const ProductListForm = () => {
         <h2 className="text-2xl font-bold text-gray-900 mb-2">List Your Product</h2>
         <p className="text-gray-600">Fill in the details below to add your item to the marketplace</p>
       </div>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Images Upload */}
@@ -213,8 +296,8 @@ const ProductListForm = () => {
             </label>
             <input
               type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               placeholder="e.g., iPhone 13 Pro 256GB Like New"
@@ -268,9 +351,9 @@ const ProductListForm = () => {
                 <input
                   type="radio"
                   name="type"
-                  value="Resale"
-                  checked={formData.type === 'Resale'}
-                  onChange={(e) => setFormData({...formData, type: e.target.value})}
+                  value="resale"
+                  checked={formData.listingType === 'resale'}
+                  onChange={(e) => setFormData({...formData, listingType: 'resale' as any})}
                   className="mr-2"
                 />
                 <span className="text-gray-700">Resale</span>
@@ -279,9 +362,9 @@ const ProductListForm = () => {
                 <input
                   type="radio"
                   name="type"
-                  value="Donation"
-                  checked={formData.type === 'Donation'}
-                  onChange={(e) => setFormData({...formData, type: e.target.value})}
+                  value="donation"
+                  checked={formData.listingType === 'donation'}
+                  onChange={(e) => setFormData({...formData, listingType: 'donation' as any})}
                   className="mr-2"
                 />
                 <span className="text-gray-700">Donation</span>
@@ -290,7 +373,7 @@ const ProductListForm = () => {
           </div>
 
           {/* Price - Only show for Resale */}
-          {formData.type === 'Resale' && (
+          {formData.listingType === 'resale' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Price (KSh) *
@@ -299,9 +382,9 @@ const ProductListForm = () => {
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="number"
-                  value={formData.price}
-                  onChange={(e) => setFormData({...formData, price: e.target.value})}
-                  required={formData.type === 'Resale'}
+                  value={formData.price || ''}
+                  onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value) || 0})}
+                  required={formData.listingType === 'resale'}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                   placeholder="Enter price"
                   min="0"
@@ -309,25 +392,6 @@ const ProductListForm = () => {
               </div>
             </div>
           )}
-
-          {/* Quantity */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Quantity *
-            </label>
-            <div className="relative">
-              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="number"
-                value={formData.quantity}
-                onChange={(e) => setFormData({...formData, quantity: e.target.value})}
-                required
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                placeholder="Quantity"
-                min="1"
-              />
-            </div>
-          </div>
 
           {/* Location */}
           <div>
@@ -366,19 +430,59 @@ const ProductListForm = () => {
           </div>
         </div>
 
-        {/* Contact Info */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Contact Information
-            <span className="text-xs text-gray-500 ml-2">(For buyers to contact you)</span>
-          </label>
-          <input
-            type="text"
-            value={formData.contactInfo}
-            onChange={(e) => setFormData({...formData, contactInfo: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
-            placeholder="Phone number or preferred contact method"
-          />
+        {/* Optional Details */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Brand (Optional)
+            </label>
+            <input
+              type="text"
+              value={formData.brand || ''}
+              onChange={(e) => setFormData({...formData, brand: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              placeholder="e.g., Apple, Nike, etc."
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Model (Optional)
+            </label>
+            <input
+              type="text"
+              value={formData.model || ''}
+              onChange={(e) => setFormData({...formData, model: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              placeholder="e.g., iPhone 13 Pro, Air Max 270, etc."
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Color (Optional)
+            </label>
+            <input
+              type="text"
+              value={formData.color || ''}
+              onChange={(e) => setFormData({...formData, color: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              placeholder="e.g., Black, Red, Blue, etc."
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Size (Optional)
+            </label>
+            <input
+              type="text"
+              value={formData.size || ''}
+              onChange={(e) => setFormData({...formData, size: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              placeholder="e.g., M, 42, Large, etc."
+            />
+          </div>
         </div>
 
         {/* Verification & Terms */}
@@ -401,12 +505,12 @@ const ProductListForm = () => {
         <div className="pt-4">
           <button
             type="submit"
-            disabled={isSubmitting || images.length === 0}
+            disabled={isCreating || imageFiles.length === 0}
             className="w-full py-4 bg-gradient-to-r from-gray-900 to-black text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isSubmitting ? (
+            {isCreating ? (
               <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin" />
                 Listing Your Product...
               </>
             ) : (
