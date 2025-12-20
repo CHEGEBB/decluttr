@@ -1,15 +1,15 @@
 'use client';
 
-import { Navbar } from '@/Frontend/components/marketplace/Navbar';
-import Footer from '@/Frontend/components/footer';
+import { Navbar } from '@/components/marketplace/Navbar';
+import Footer from '@/components/footer';
 import { 
   ContactHero,
   ContactInfo,
   ContactForm,
   FAQSection,
   MapSection
-} from '@/Frontend/components/contact';
-import { InfiniteMarquee } from '@/Frontend/components/marketplace/InfiniteMarquee';
+} from '@/components/contact';
+import { InfiniteMarquee } from '@/components/marketplace/InfiniteMarquee';
 
 export default function ContactPage() {
 
@@ -24,7 +24,7 @@ export default function ContactPage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
               <InfiniteMarquee />
 
-      <Navbar cartCount={3} onSearch={() => {}} />
+      <Navbar onSearch={() => {}} />
       
       {/* Contact Hero Section */}
       <ContactHero />

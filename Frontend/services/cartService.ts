@@ -4,6 +4,7 @@
 import { Product } from './productService';
 
 export interface CartItem {
+  [x: string]: number;
   _id: string;
   product: Product;
   quantity: number;

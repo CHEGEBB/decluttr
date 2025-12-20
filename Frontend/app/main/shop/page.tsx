@@ -11,14 +11,14 @@ import {
   BookOpen, 
   Glasses
 } from 'lucide-react';
-import { Navbar } from '@/Frontend/components/marketplace/Navbar';
-import Footer from '@/Frontend/components/footer';
+import { Navbar } from '@/components/marketplace/Navbar';
+import Footer from '@/components/footer';
 import { 
   FilterSidebar, 
   ShopHeader
-} from '@/Frontend/components/shop';
-import { InfiniteMarquee } from '@/Frontend/components/marketplace/InfiniteMarquee';
-import ProductCard from '@/Frontend/components/shop/ProductCard';
+} from '@/components/shop';
+import { InfiniteMarquee } from '@/components/marketplace/InfiniteMarquee';
+import ProductCard from '@/components/shop/ProductCard';
 
 // Define category type
 type CategoryName = 

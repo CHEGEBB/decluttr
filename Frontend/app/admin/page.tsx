@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,7 +11,7 @@ import {
   ProductVerification,
   OrderModeration,
   ReportsAnalytics
-} from '@/Frontend/components/admin';
+} from '@/components/admin';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

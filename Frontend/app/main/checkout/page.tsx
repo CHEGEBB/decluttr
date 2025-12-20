@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -21,64 +22,19 @@ import {
   AlertCircle,
   ChevronRight,
   Home,
-  QrCode
+  QrCode,
+  AlertTriangle,
+  ShoppingCart
 } from 'lucide-react';
 import Link from 'next/link';
-import { Navbar } from '@/Frontend/components/marketplace/Navbar';
-import Footer from '@/Frontend/components/footer';
-import { InfiniteMarquee } from '@/Frontend/components/marketplace/InfiniteMarquee';
-
-// Mock order data from cart
-// Generate consistent order ID based on a fixed timestamp
-const FIXED_ORDER_ID = 'ORD-47614224';
-
-const mockOrder = {
-  id: FIXED_ORDER_ID,
-  items: [
-    {
-      id: 1,
-      name: 'iPhone 12 Pro 256GB',
-      seller: 'tech_trader',
-      price: 85000,
-      quantity: 1,
-      type: 'Resale'
-    },
-    {
-      id: 2,
-      name: 'Nike Air Max 270 React',
-      seller: 'sneaker_head',
-      price: 13500,
-      quantity: 2,
-      type: 'Resale'
-    },
-    {
-      id: 3,
-      name: 'Modern Wooden Study Desk',
-      seller: 'home_declutter',
-      price: 28000,
-      quantity: 1,
-      type: 'Resale'
-    }
-  ],
-  shipping: {
-    location: 'Nairobi CBD',
-    fee: 200,
-    address: '123 Kimathi Street, Nairobi',
-    estimatedDelivery: '1-2 business days'
-  },
-  subtotal: 140000,
-  shippingFee: 200,
-  discount: 0,
-  total: 140200
-};
-
-// Mock user data
-const mockUser = {
-  name: 'Mary Ann Koome',
-  phone: '+254 712 345 678',
-  email: 'mary.ann@email.com',
-  defaultLocation: 'Nairobi CBD'
-};
+import { useRouter } from 'next/navigation';
+import { Navbar } from '@/components/marketplace/Navbar';
+import Footer from '@/components/footer';
+import { InfiniteMarquee } from '@/components/marketplace/InfiniteMarquee';
+import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
+import { useOrders } from '@/hooks/useOrders';
+import { usePayment } from '@/hooks/usePayment';
 
 // Payment steps
 const paymentSteps = [
@@ -88,48 +44,68 @@ const paymentSteps = [
 ];
 
 export default function CheckoutPage() {
-  const [phoneNumber, setPhoneNumber] = useState(mockUser.phone);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { 
+    cartItems, 
+    totalPrice, 
+    shippingFee, 
+    grandTotal, 
+    isLoading: cartLoading,
+    clearCart,
+    getCart 
+  } = useCart();
+  
+  const { 
+    createOrder, 
+    isCreating: orderCreating, 
+    error: orderError,
+    currentOrder 
+  } = useOrders();
+  
+  const { 
+    initiatePayment, 
+    checkPaymentStatus, 
+    isProcessing: paymentProcessing, 
+    paymentStatus,
+    error: paymentError,
+    validatePhoneNumber,
+    formatPhoneNumber,
+    clearPaymentState
+  } = usePayment();
+
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [shippingAddress, setShippingAddress] = useState('');
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [paymentError, setPaymentError] = useState<string | null>(null);
-  const [mpesaCode, setMpesaCode] = useState<string>('');
+  const [mpesaCode, setMpesaCode] = useState('');
   const [showQrCode, setShowQrCode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isInitializing, setIsInitializing] = useState(true);
 
-  // Simulate M-Pesa payment
-  const handleMpesaPayment = () => {
-    setIsProcessing(true);
-    setPaymentError(null);
-    
-    // Simulate API call delay
-    setTimeout(() => {
-      // Simulate random success/failure
-      const isSuccess = Math.random() > 0.1; // 90% success rate
-      
-      if (isSuccess) {
-        const code = `MP${Math.floor(100000 + Math.random() * 900000)}`;
-        setMpesaCode(code);
-        setPaymentSuccess(true);
-        
-        // Auto-hide success after 5 seconds
-        setTimeout(() => {
-          setPaymentSuccess(false);
-        }, 5000);
-      } else {
-        setPaymentError('Payment failed. Please check your phone number and try again.');
+  // Initialize data on mount
+  useEffect(() => {
+    const initializeCheckout = async () => {
+      if (!authLoading) {
+        if (!isAuthenticated) {
+          router.push('/auth/login?redirect=/main/checkout');
+          return;
+        }
+
+        await getCart();
+        setIsInitializing(false);
       }
-      
-      setIsProcessing(false);
-    }, 3000);
-  };
+    };
+
+    initializeCheckout();
+  }, [authLoading, isAuthenticated, router, getCart]);
 
   // Handle search (for Navbar)
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
 
-  // Format phone number
-  const formatPhoneNumber = (value: string) => {
+  // Format phone number for display
+  const formatDisplayPhone = (value: string) => {
     const numbers = value.replace(/\D/g, '');
     if (numbers.length <= 3) return numbers;
     if (numbers.length <= 6) return `+${numbers.slice(0, 3)} ${numbers.slice(3)}`;
@@ -137,11 +113,148 @@ export default function CheckoutPage() {
     return `+${numbers.slice(0, 3)} ${numbers.slice(3, 6)} ${numbers.slice(6, 9)} ${numbers.slice(9, 12)}`;
   };
 
+  // Handle phone number input
+  const handlePhoneChange = (value: string) => {
+    const formatted = formatDisplayPhone(value);
+    setPhoneNumber(formatted);
+  };
+
+  // Helper function to safely get seller info
+  const getSellerInfo = (seller: any) => {
+    if (!seller) return 'Unknown';
+    if (typeof seller === 'object') {
+      return seller.name || seller.username || 'Unknown';
+    }
+    return 'Unknown';
+  };
+
+  // Helper function to safely get price
+  const getItemPrice = (item: any) => {
+    return item.price || item.product?.price || 0;
+  };
+
+  // Calculate order totals
+  const calculateTotals = () => {
+    const subtotal = cartItems.reduce((total, item) => {
+      const itemPrice = getItemPrice(item);
+      return total + (itemPrice * item.quantity);
+    }, 0);
+
+    return {
+      subtotal,
+      shippingFee: shippingFee || 600,
+      total: subtotal + (shippingFee || 600)
+    };
+  };
+
+  const { subtotal, shippingFee: calculatedShipping, total } = calculateTotals();
+
+  // Create order and initiate payment
+  const handleMpesaPayment = async () => {
+    if (!validatePhoneNumber(phoneNumber)) {
+      alert('Invalid phone number. Please use format: 2547XXXXXXXX or 07XXXXXXXX');
+      return;
+    }
+
+    if (!shippingAddress.trim()) {
+      alert('Please provide a shipping address');
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      alert('Your cart is empty');
+      router.push('/main/marketplace');
+      return;
+    }
+
+    try {
+      // 1. Create order
+      const order = await createOrder({
+        shippingAddress
+      });
+
+      // 2. Initiate payment
+      const formattedPhone = formatPhoneNumber(phoneNumber);
+      
+      await initiatePayment({
+        phoneNumber: formattedPhone,
+        amount: total,
+        orderId: order._id,
+        accountReference: `ORD-${order._id.slice(-8).toUpperCase()}`,
+        transactionDesc: `Payment for order ${order._id.slice(-8).toUpperCase()}`
+      });
+
+      // 3. Check payment status after 5 seconds
+      setTimeout(async () => {
+        try {
+          const statusResponse = await checkPaymentStatus(order._id);
+          
+          if (statusResponse.data.paymentStatus === 'completed') {
+            setPaymentSuccess(true);
+            setMpesaCode(statusResponse.data.transaction.mpesaReceiptNumber || 'MPXXXXXX');
+            
+            // Clear cart on successful payment
+            await clearCart();
+            
+            // Auto-hide success after 5 seconds
+            setTimeout(() => {
+              setPaymentSuccess(false);
+              router.push('/dashboard/orders');
+            }, 5000);
+          }
+        } catch (error) {
+          console.error('Payment status check failed:', error);
+        }
+      }, 5000);
+
+    } catch (error: any) {
+      console.error('Payment process failed:', error);
+      alert(error.message || 'Payment failed. Please try again.');
+    }
+  };
+
+  // If still loading or not authenticated
+  if (authLoading || isInitializing || cartLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-red-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading checkout...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If cart is empty
+  if (cartItems.length === 0 && !paymentSuccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        <InfiniteMarquee />
+        <Navbar onSearch={handleSearch} />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center py-16">
+            <ShoppingCart className="w-24 h-24 text-gray-300 mx-auto mb-6" />
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h1>
+            <p className="text-gray-600 mb-8">Add items to your cart before checkout</p>
+            <Link
+              href="/main/marketplace"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-xl hover:from-red-700 hover:to-red-800 transition-all"
+            >
+              Continue Shopping
+              <ChevronRight className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-              <InfiniteMarquee />
-
-      <Navbar cartCount={4} onSearch={handleSearch} />
+      <InfiniteMarquee />
+      <Navbar onSearch={handleSearch} />
       
       {/* Success Modal */}
       {paymentSuccess && (
@@ -155,7 +268,7 @@ export default function CheckoutPage() {
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2 text-center">Payment Successful!</h3>
             <div className="text-center mb-6">
-              <div className="text-3xl font-black text-green-600 mb-2">KSh {mockOrder.total.toLocaleString()}</div>
+              <div className="text-3xl font-black text-green-600 mb-2">KSh {total.toLocaleString()}</div>
               <div className="text-sm text-gray-600">M-Pesa Confirmation Code</div>
               <div className="text-lg font-mono font-bold text-gray-900 bg-gray-100 px-4 py-2 rounded-lg mt-2">
                 {mpesaCode}
@@ -163,7 +276,7 @@ export default function CheckoutPage() {
             </div>
             <div className="space-y-3">
               <Link 
-                href="/dashboard"
+                href="/dashboard/orders"
                 className="block w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl text-center hover:from-green-600 hover:to-emerald-700 transition-all"
               >
                 View Order Details
@@ -174,6 +287,21 @@ export default function CheckoutPage() {
               >
                 Continue Shopping
               </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Display */}
+      {(orderError || paymentError) && (
+        <div className="fixed top-4 right-4 z-50 animate-fadeIn">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 shadow-lg max-w-md">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <div className="font-semibold text-red-700">Error</div>
+                <div className="text-sm text-red-600">{orderError || paymentError}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -205,7 +333,7 @@ export default function CheckoutPage() {
           <div className="text-right">
             <div className="text-sm text-gray-500">Order Total</div>
             <div className="text-2xl font-bold text-red-600">
-              KSh {mockOrder.total.toLocaleString()}
+              KSh {total.toLocaleString()}
             </div>
           </div>
         </div>
@@ -255,23 +383,37 @@ export default function CheckoutPage() {
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <Package className="w-5 h-5" />
-                    Items in Your Order
+                    Items in Your Order ({cartItems.length})
                   </h3>
                   <div className="space-y-3">
-                    {mockOrder.items.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
-                        <div>
-                          <div className="font-semibold text-gray-900">{item.name}</div>
-                          <div className="text-sm text-gray-600">Seller: @{item.seller} • Qty: {item.quantity}</div>
+                    {cartItems.map((item) => {
+                      const itemPrice = getItemPrice(item);
+                      const sellerInfo = getSellerInfo(item.seller);
+                      
+                      return (
+                        <div key={item.product._id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                          <div>
+                            <div className="font-semibold text-gray-900">{item.product.name}</div>
+                            <div className="text-sm text-gray-600">
+                              Seller: {sellerInfo} • Qty: {item.quantity}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {item.product.listingType === 'resale' ? 'Resale' : 'Donation'}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-gray-900">
+                              KSh {(itemPrice * item.quantity).toLocaleString()}
+                            </div>
+                            {item.product.listingType === 'resale' && itemPrice > 0 && (
+                              <div className="text-sm text-gray-500">
+                                KSh {itemPrice.toLocaleString()} each
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <div className="font-bold text-gray-900">KSh {(item.price * item.quantity).toLocaleString()}</div>
-                          {item.type === 'Resale' && (
-                            <div className="text-sm text-gray-500">KSh {item.price.toLocaleString()} each</div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -279,24 +421,18 @@ export default function CheckoutPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-semibold text-gray-900">KSh {mockOrder.subtotal.toLocaleString()}</span>
+                    <span className="font-semibold text-gray-900">KSh {subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Shipping</span>
-                    <span className="font-semibold text-gray-900">KSh {mockOrder.shippingFee.toLocaleString()}</span>
+                    <span className="font-semibold text-gray-900">KSh {calculatedShipping.toLocaleString()}</span>
                   </div>
-                  {mockOrder.discount > 0 && (
-                    <div className="flex justify-between items-center text-green-600">
-                      <span>Discount</span>
-                      <span className="font-semibold">-KSh {mockOrder.discount.toLocaleString()}</span>
-                    </div>
-                  )}
                   <div className="pt-4 border-t border-gray-200">
                     <div className="flex justify-between items-center">
                       <span className="text-xl font-bold text-gray-900">Total Amount</span>
                       <div className="text-right">
                         <div className="text-3xl font-black text-red-600">
-                          KSh {mockOrder.total.toLocaleString()}
+                          KSh {total.toLocaleString()}
                         </div>
                         <div className="text-sm text-gray-500">Including all taxes</div>
                       </div>
@@ -313,36 +449,36 @@ export default function CheckoutPage() {
                   <Truck className="w-5 h-5" />
                   Shipping Information
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
                   <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <MapPin className="w-5 h-5 text-red-600" />
-                      <div>
-                        <div className="font-semibold text-gray-900">Delivery Address</div>
-                        <div className="text-gray-600">{mockOrder.shipping.address}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-5 h-5 text-blue-600" />
-                      <div>
-                        <div className="font-semibold text-gray-900">Estimated Delivery</div>
-                        <div className="text-gray-600">{mockOrder.shipping.estimatedDelivery}</div>
-                      </div>
-                    </div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Shipping Address *
+                    </label>
+                    <textarea
+                      value={shippingAddress}
+                      onChange={(e) => setShippingAddress(e.target.value)}
+                      placeholder="Enter your complete shipping address (street, building, town, etc.)"
+                      className="w-full px-4 py-3 text-gray-900 placeholder:text-gray-400 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all min-h-[100px]"
+                      required
+                    />
+                    <p className="mt-2 text-sm text-gray-500">
+                      This address will be used to deliver your items
+                    </p>
                   </div>
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                       <User className="w-5 h-5 text-green-600" />
                       <div>
                         <div className="font-semibold text-gray-900">Recipient</div>
-                        <div className="text-gray-600">{mockUser.name}</div>
+                        <div className="text-gray-600">{user?.name || 'Guest'}</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                       <Phone className="w-5 h-5 text-purple-600" />
                       <div>
                         <div className="font-semibold text-gray-900">Contact Phone</div>
-                        <div className="text-gray-600">{mockUser.phone}</div>
+                        <div className="text-gray-600">{user?.phoneNumber || 'Not provided'}</div>
                       </div>
                     </div>
                   </div>
@@ -361,12 +497,14 @@ export default function CheckoutPage() {
               </div>
               
               <div className="p-6">
-                {paymentError && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 animate-fadeIn">
-                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                {paymentStatus === 'pending' && (
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3 animate-fadeIn">
+                    <Loader2 className="w-5 h-5 text-blue-600 animate-spin flex-shrink-0 mt-0.5" />
                     <div>
-                      <div className="font-semibold text-red-700">Payment Error</div>
-                      <div className="text-sm text-red-600">{paymentError}</div>
+                      <div className="font-semibold text-blue-700">Payment Pending</div>
+                      <div className="text-sm text-blue-600">
+                        Please check your phone and enter your M-Pesa PIN to complete payment
+                      </div>
                     </div>
                   </div>
                 )}
@@ -375,7 +513,7 @@ export default function CheckoutPage() {
                   {/* Phone Number Input */}
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-3">
-                      M-Pesa Registered Phone Number
+                      M-Pesa Registered Phone Number *
                     </label>
                     <div className="relative">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2">
@@ -384,9 +522,11 @@ export default function CheckoutPage() {
                       <input
                         type="tel"
                         value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
-                        placeholder="+254 712 345 678"
-                        className="w-full pl-12 pr-4 py-4 text-gray-500 placeholder:text-gray-300 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
+                        onChange={(e) => handlePhoneChange(e.target.value)}
+                        placeholder="+254 712 345 678 or 07XXXXXXXX"
+                        className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder:text-gray-400 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
+                        required
+                        disabled={paymentProcessing || paymentStatus === 'pending'}
                       />
                     </div>
                     <div className="mt-2 text-sm text-gray-500">
@@ -394,50 +534,15 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  {/* QR Code Option */}
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
-                    <button
-                      onClick={() => setShowQrCode(!showQrCode)}
-                      className="w-full flex items-center justify-between text-left"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                          <QrCode className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <div className="font-semibold text-gray-900">Pay with QR Code</div>
-                          <div className="text-sm text-gray-600">Scan to pay from M-Pesa app</div>
-                        </div>
-                      </div>
-                      <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform ${showQrCode ? 'rotate-90' : ''}`} />
-                    </button>
-                    
-                    {showQrCode && (
-                      <div className="mt-4 pt-4 border-t border-blue-200 animate-fadeIn">
-                        <div className="text-center">
-                          <div className="w-48 h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mx-auto flex items-center justify-center mb-4">
-                            <div className="text-center">
-                              <div className="text-4xl mb-2">📱</div>
-                              <div className="text-sm text-gray-600">M-Pesa QR Code</div>
-                            </div>
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            Open M-Pesa app, tap &quot;Pay Bill&quot;, then &quot;Scan QR Code&quot;
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
                   {/* Payment Amount Display */}
                   <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
                     <div className="text-center">
                       <div className="text-sm text-gray-600 mb-2">You will pay</div>
                       <div className="text-5xl font-black text-gray-900 mb-2">
-                        KSh {mockOrder.total.toLocaleString()}
+                        KSh {total.toLocaleString()}
                       </div>
                       <div className="text-sm text-gray-500">
-                        An M-Pesa prompt will be sent to {phoneNumber}
+                        An M-Pesa prompt will be sent to {phoneNumber || 'your phone'}
                       </div>
                     </div>
                   </div>
@@ -467,11 +572,29 @@ export default function CheckoutPage() {
               </div>
 
               <div className="p-6">
-                {/* Order ID */}
-                <div className="mb-6 p-4 bg-gray-50 rounded-xl">
-                  <div className="text-sm text-gray-600 mb-1">Order Reference</div>
-                  <div className="font-mono font-bold text-gray-900 text-lg">{mockOrder.id}</div>
-                </div>
+                {/* Payment Status */}
+                {paymentStatus && (
+                  <div className={`mb-6 p-4 rounded-xl border ${
+                    paymentStatus === 'completed' 
+                      ? 'bg-green-50 border-green-200' 
+                      : paymentStatus === 'pending'
+                      ? 'bg-blue-50 border-blue-200'
+                      : 'bg-red-50 border-red-200'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      {paymentStatus === 'completed' ? (
+                        <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      ) : paymentStatus === 'pending' ? (
+                        <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                      ) : (
+                        <AlertCircle className="w-5 h-5 text-red-600" />
+                      )}
+                      <div className="font-semibold capitalize">
+                        Payment {paymentStatus}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Payment Instructions */}
                 <div className="mb-6 space-y-4">
@@ -507,17 +630,24 @@ export default function CheckoutPage() {
                 {/* Pay Button */}
                 <button
                   onClick={handleMpesaPayment}
-                  disabled={isProcessing || phoneNumber.length < 10}
+                  disabled={
+                    orderCreating || 
+                    paymentProcessing || 
+                    paymentStatus === 'pending' || 
+                    !phoneNumber.trim() || 
+                    !shippingAddress.trim() ||
+                    !validatePhoneNumber(phoneNumber)
+                  }
                   className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 ${
-                    isProcessing
-                      ? 'bg-gradient-to-r from-gray-600 to-gray-700 text-white'
+                    orderCreating || paymentProcessing || paymentStatus === 'pending'
+                      ? 'bg-gradient-to-r from-gray-600 to-gray-700 text-white cursor-not-allowed'
                       : 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-green-600 hover:to-emerald-700 hover:scale-[1.02] hover:shadow-2xl shadow-xl'
-                  } ${(phoneNumber.length < 10) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  }`}
                 >
-                  {isProcessing ? (
+                  {orderCreating || paymentProcessing || paymentStatus === 'pending' ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Processing Payment...
+                      {paymentStatus === 'pending' ? 'Waiting for Payment...' : 'Processing...'}
                     </>
                   ) : (
                     <>
@@ -532,20 +662,12 @@ export default function CheckoutPage() {
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600">Amount Due</span>
                     <span className="text-2xl font-black text-gray-900">
-                      KSh {mockOrder.total.toLocaleString()}
+                      KSh {total.toLocaleString()}
                     </span>
                   </div>
                   <div className="text-xs text-gray-500 text-center">
                     You&apos;ll be redirected to complete payment securely
                   </div>
-                </div>
-
-                {/* Alternative Payment */}
-                <div className="mt-6">
-                  <button className="w-full py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
-                    <CreditCard className="w-5 h-5" />
-                    Use Credit/Debit Card
-                  </button>
                 </div>
 
                 {/* Need Help */}
