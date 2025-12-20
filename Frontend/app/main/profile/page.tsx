@@ -2,15 +2,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Navbar } from '@/components/marketplace/Navbar';
-import Footer from '@/components/footer';
+import { Navbar } from '@/Frontend/components/marketplace/Navbar';
+import Footer from '@/Frontend/components/footer';
 import { 
   ProfileSidebar,
   StatsCards,
   ListedItems,
   ProductListForm,
   OrderHistory
-} from '@/components/profile';
+} from '@/Frontend/components/profile';
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('dashboard');

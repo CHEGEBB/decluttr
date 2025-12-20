@@ -10,7 +10,7 @@ import {
   ProductVerification,
   OrderModeration,
   ReportsAnalytics
-} from '@/components/admin';
+} from '@/Frontend/components/admin';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

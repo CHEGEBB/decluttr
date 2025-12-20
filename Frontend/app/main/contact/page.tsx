@@ -1,15 +1,15 @@
 'use client';
 
-import { Navbar } from '@/components/marketplace/Navbar';
-import Footer from '@/components/footer';
+import { Navbar } from '@/Frontend/components/marketplace/Navbar';
+import Footer from '@/Frontend/components/footer';
 import { 
   ContactHero,
   ContactInfo,
   ContactForm,
   FAQSection,
   MapSection
-} from '@/components/contact';
-import { InfiniteMarquee } from '@/components/marketplace/InfiniteMarquee';
+} from '@/Frontend/components/contact';
+import { InfiniteMarquee } from '@/Frontend/components/marketplace/InfiniteMarquee';
 
 export default function ContactPage() {
 
