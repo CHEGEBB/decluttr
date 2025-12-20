@@ -28,7 +28,17 @@ class ApiClient {
   private getAuthToken(): string | null {
     // Only access localStorage on client side
     if (typeof window === 'undefined') return null;
-    return authService.getToken();
+    
+    const token = authService.getToken();
+    
+    // Debug logging
+    if (!token) {
+      console.warn('⚠️ No auth token found. User may not be logged in.');
+    } else {
+      console.log('✅ Auth token found:', token.substring(0, 20) + '...');
+    }
+    
+    return token;
   }
 
   private async request<T>(
@@ -46,6 +56,14 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
+    // Debug logging
+    console.log('🌐 API Request:', {
+      url: `${this.baseURL}${endpoint}`,
+      method: options.method || 'GET',
+      hasToken: !!token,
+      headers: { ...headers, Authorization: token ? 'Bearer ***' : 'none' }
+    });
+
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         ...options,
@@ -62,13 +80,31 @@ class ApiClient {
         data = { success: response.ok };
       }
 
+      // Debug logging
+      console.log('📥 API Response:', {
+        status: response.status,
+        ok: response.ok,
+        data
+      });
+
       if (!response.ok) {
+        // Special handling for auth errors
+        if (response.status === 401) {
+          console.error('🔒 Authentication failed. Token may be expired or invalid.');
+          
+          // Optional: Clear token and redirect to login
+          if (typeof window !== 'undefined') {
+            authService.logout();
+            window.location.href = '/login';
+          }
+        }
+        
         throw new Error(data.message || data.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       return data;
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('❌ API Error:', error);
       
       // Re-throw with more context
       if (error instanceof Error) {
@@ -116,7 +152,10 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    // Don't set Content-Type for FormData - browser will set it with boundary
+    console.log('📤 Uploading FormData:', {
+      url: `${this.baseURL}${endpoint}`,
+      hasToken: !!token
+    });
 
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, {
@@ -128,6 +167,13 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401) {
+          console.error('🔒 Authentication failed during upload.');
+          if (typeof window !== 'undefined') {
+            authService.logout();
+            window.location.href = '/login';
+          }
+        }
         throw new Error(data.message || data.error || 'Upload failed');
       }
 
