@@ -21,7 +21,8 @@ import {
   Award,
   Star,
   Plus,
-  Minus
+  Minus,
+  ShoppingBasketIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar } from '@/components/marketplace/Navbar';
@@ -130,6 +131,7 @@ export default function CartPage() {
       console.error('Error removing item:', err);
       setRemovingItemId(null);
     }
+    window.location.reload();
   };
 
   // Handle clear cart
@@ -252,10 +254,10 @@ export default function CartPage() {
               Discover amazing pre-loved items and sustainable deals waiting for you
             </p>
             <Link 
-              href="/marketplace"
+              href="/main/marketplace"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-xl hover:from-red-700 hover:to-red-800 transition-all shadow-lg hover:shadow-xl hover:scale-105"
             >
-              <Sparkles className="w-5 h-5" />
+              <ShoppingBasketIcon className="w-5 h-5" />
               Explore Marketplace
             </Link>
           </div>
@@ -292,7 +294,7 @@ export default function CartPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
             <Link 
-              href="/marketplace"
+              href="/main/marketplace"
               className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 text-gray-700 hover:border-red-600 hover:text-red-600 rounded-xl transition-all hover:scale-105 group"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
