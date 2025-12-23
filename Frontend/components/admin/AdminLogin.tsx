@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
-import { Lock, Shield, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Lock, Shield, AlertCircle, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 
 interface AdminLoginProps {
   setIsAuthenticated: (value: boolean) => void;
@@ -10,39 +13,43 @@ interface AdminLoginProps {
 
 const AdminLogin = ({ setIsAuthenticated }: AdminLoginProps) => {
   const router = useRouter();
+  const { login, isLoading: authLoading } = useAuth();
+  const { isAdmin: userIsAdmin } = useAdmin();
+  
   const [credentials, setCredentials] = useState({
-    email: '',
+    identifier: '', // Can be email or username
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const ADMIN_CREDENTIALS = {
-    email: 'admin@decluttr.com',
-    password: 'admin1234'
-  };
+  const [success, setSuccess] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
+    setSuccess('');
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Use the auth service to login
+      await login(credentials);
+      
+      // Check if user is admin
+      if (!userIsAdmin) {
+        setError('Access denied. Admin privileges required.');
+        return;
+      }
 
-    if (
-      credentials.email === ADMIN_CREDENTIALS.email &&
-      credentials.password === ADMIN_CREDENTIALS.password
-    ) {
-      setIsAuthenticated(true);
-      localStorage.setItem('adminAuthenticated', 'true');
-      router.push('/admin');
-    } else {
-      setError('Invalid admin credentials');
+      setSuccess('Admin login successful!');
+      
+      // Wait a bit then redirect
+      setTimeout(() => {
+        setIsAuthenticated(true);
+        router.push('/admin/dashboard');
+      }, 1500);
+      
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please check your credentials.');
     }
-
-    setIsLoading(false);
   };
 
   return (
@@ -60,21 +67,21 @@ const AdminLogin = ({ setIsAuthenticated }: AdminLoginProps) => {
         {/* Login Card */}
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
+            {/* Email/Username */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Admin Email
+                Admin Email or Username
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2">
                   <Lock className="w-5 h-5 text-gray-400" />
                 </div>
                 <input
-                  type="email"
-                  value={credentials.email}
-                  onChange={(e) => setCredentials({...credentials, email: e.target.value})}
+                  type="text"
+                  value={credentials.identifier}
+                  onChange={(e) => setCredentials({...credentials, identifier: e.target.value})}
                   className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                  placeholder="admin@decluttr.com"
+                  placeholder="admin@decluttr.com or admin"
                   required
                 />
               </div>
@@ -107,6 +114,14 @@ const AdminLogin = ({ setIsAuthenticated }: AdminLoginProps) => {
               </div>
             </div>
 
+            {/* Success Message */}
+            {success && (
+              <div className="p-3 bg-green-900/30 border border-green-700 rounded-lg flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-400" />
+                <span className="text-sm text-green-300">{success}</span>
+              </div>
+            )}
+
             {/* Error Message */}
             {error && (
               <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg flex items-center gap-2">
@@ -115,22 +130,13 @@ const AdminLogin = ({ setIsAuthenticated }: AdminLoginProps) => {
               </div>
             )}
 
-            {/* Test Credentials */}
-            <div className="p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg">
-              <h4 className="text-sm font-medium text-blue-300 mb-1">Test Credentials</h4>
-              <p className="text-xs text-blue-400">
-                Email: admin@decluttr.com<br />
-                Password: admin1234
-              </p>
-            </div>
-
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={authLoading}
               className="w-full py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold rounded-lg hover:from-red-700 hover:to-orange-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isLoading ? (
+              {authLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Authenticating...
@@ -143,10 +149,10 @@ const AdminLogin = ({ setIsAuthenticated }: AdminLoginProps) => {
               )}
             </button>
 
-            {/* Security Notice */}
+            {/* Note for test users */}
             <div className="text-center">
               <p className="text-xs text-gray-500">
-                This is a secure admin portal. Unauthorized access is prohibited.
+                Contact system administrator for credentials
               </p>
             </div>
           </form>
