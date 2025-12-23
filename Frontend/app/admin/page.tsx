@@ -120,13 +120,6 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
-
-      {/* Admin Footer */}
-      <div className="border-t border-gray-200 bg-white p-4 text-center">
-        <p className="text-sm text-gray-600">
-          © 2024 Decluttr Admin Portal • v1.0.0 • Secure Admin Access
-        </p>
-      </div>
     </div>
   );
 }

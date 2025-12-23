@@ -4,21 +4,26 @@
 import { useState, useEffect } from 'react';
 import { 
   Package,
-  Loader2
+  Loader2,
+  ArrowLeft,
+  List
 } from 'lucide-react';
 import ProductCardCompact from './ProductCardCompact';
 import { Product } from '@/services/productService';
+import ProductListForm from './ProductListForm';
 
 interface ListedItemsProps {
   products: Product[];
   loading: boolean;
   onEditProduct: (id: string) => void;
   onDeleteProduct: (id: string) => void;
+  onProductAdded?: () => void; // Optional callback for when a product is added
 }
 
-const ListedItems = ({ products, loading, onEditProduct, onDeleteProduct }: ListedItemsProps) => {
+const ListedItems = ({ products, loading, onEditProduct, onDeleteProduct, onProductAdded }: ListedItemsProps) => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   useEffect(() => {
     if (selectedFilter === 'all') {
@@ -65,6 +70,13 @@ const ListedItems = ({ products, loading, onEditProduct, onDeleteProduct }: List
     }
   };
 
+  const handleFormSuccess = () => {
+    setShowAddForm(false);
+    if (onProductAdded) {
+      onProductAdded(); // Refresh the products list
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
@@ -76,6 +88,36 @@ const ListedItems = ({ products, loading, onEditProduct, onDeleteProduct }: List
     );
   }
 
+  // SHOW ADD FORM MODE
+  if (showAddForm) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        {/* Back to List Header */}
+        <div className="p-6 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setShowAddForm(false)}
+              className="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors group"
+            >
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-medium">Back to Your Items</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <List className="w-5 h-5 text-red-600" />
+              <span className="font-bold text-gray-900">Add New Item</span>
+            </div>
+          </div>
+        </div>
+
+        {/* The Form Itself - Replacing the entire content */}
+        <div className="p-6">
+          <ProductListForm />
+        </div>
+      </div>
+    );
+  }
+
+  // SHOW LISTED ITEMS MODE (Default)
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
       {/* Header */}
@@ -86,9 +128,10 @@ const ListedItems = ({ products, loading, onEditProduct, onDeleteProduct }: List
             <p className="text-gray-600">Manage your products and track their performance</p>
           </div>
           <button 
-            onClick={() => window.location.href = '/main/profile?tab=list-item'}
-            className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all"
+            onClick={() => setShowAddForm(true)}
+            className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
           >
+            <Package className="w-4 h-4" />
             + Add New Item
           </button>
         </div>
@@ -103,7 +146,7 @@ const ListedItems = ({ products, loading, onEditProduct, onDeleteProduct }: List
               onClick={() => setSelectedFilter(filter.id)}
               className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
                 selectedFilter === filter.id
-                  ? 'bg-red-600 text-white'
+                  ? 'bg-red-600 text-white shadow-sm'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
               }`}
             >
@@ -144,9 +187,10 @@ const ListedItems = ({ products, loading, onEditProduct, onDeleteProduct }: List
             <h3 className="text-lg font-bold text-gray-900 mb-2">No items found</h3>
             <p className="text-gray-600 mb-6">You haven&apos;t listed any items yet</p>
             <button 
-              onClick={() => window.location.href = '/main/profile?tab=list-item'}
-              className="px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors"
+              onClick={() => setShowAddForm(true)}
+              className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-colors shadow-md hover:shadow-lg flex items-center gap-2 mx-auto"
             >
+              <Package className="w-5 h-5" />
               List Your First Item
             </button>
           </div>
