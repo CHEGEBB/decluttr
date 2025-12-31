@@ -15,8 +15,10 @@ interface NavbarProps {
 }
 
 export function Navbar({ onSearch }: NavbarProps) {
-  const { unreadCount, loading } = useMessages();
+  const { conversations, loading } = useMessages();
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const unreadCount = conversations.filter(conv => conv.unread).length;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const router = useRouter();
@@ -282,14 +284,15 @@ export function Navbar({ onSearch }: NavbarProps) {
             </div>
 
             <div className="flex items-center gap-4 lg:gap-6">
-              <Link 
+                 <Link 
         href="/main/messages" 
-        className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors relative"
+        className="flex items-center text-gray-700 hover:text-red-600 py-2 relative"
+        onClick={() => setMobileMenuOpen(false)}
       >
-        <MessageCircle className="w-6 h-6" />
+        <MessageCircle className="w-5 h-5 mr-3" />
         <span className="font-semibold">Messages</span>
         {!loading && unreadCount > 0 && (
-          <span className="absolute -top-1 left-3 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
+          <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
