@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Truck, 
   CheckCircle, 
@@ -18,117 +18,104 @@ import {
   MessageCircle
 } from 'lucide-react';
 
-interface Order {
-  id: number;
-  productName: string;
-  productImage: string;
-  buyer: string;
-  seller: string;
-  category: string;
-  type: 'Resale' | 'Donation';
+interface OrderItem {
+  product: {
+    _id: string;
+    name: string;
+    images: string[];
+    category: string;
+  };
+  seller: {
+    _id: string;
+    name: string;
+    username: string;
+  };
   price: number;
-  status: 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Disputed';
-  orderDate: string;
-  deliveryDate?: string;
-  location: string;
-  trackingId?: string;
+  quantity: number;
+}
+
+interface Order {
+  _id: string;
+  orderNumber: string;
+  buyer: {
+    _id: string;
+    name: string;
+    username: string;
+    phoneNumber: string;
+  };
+  items: OrderItem[];
+  totalAmount: number;
+  orderStatus: string;
+  paymentStatus: string;
+  shippingAddress: {
+    street: string;
+    city: string;
+    county: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 const OrderModeration = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('processing');
-  
-  const orders: Order[] = [
-    {
-      id: 1,
-      productName: 'iPhone 13 Pro',
-      productImage: 'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=400&h=400&fit=crop',
-      buyer: 'Jane Smith',
-      seller: 'John Doe',
-      category: 'Electronics',
-      type: 'Resale',
-      price: 85000,
-      status: 'Processing',
-      orderDate: '2024-12-10',
-      location: 'Nairobi'
-    },
-    {
-      id: 2,
-      productName: 'Leather Jacket',
-      productImage: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop',
-      buyer: 'Mike Johnson',
-      seller: 'Sarah Williams',
-      category: 'Clothes',
-      type: 'Resale',
-      price: 12500,
-      status: 'Shipped',
-      orderDate: '2024-12-09',
-      deliveryDate: '2024-12-12',
-      location: 'Mombasa',
-      trackingId: 'TRK78901234'
-    },
-    {
-      id: 3,
-      productName: 'Book Collection',
-      productImage: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=400&fit=crop',
-      buyer: 'Community Library',
-      seller: 'David Brown',
-      category: 'Books',
-      type: 'Donation',
-      price: 0,
-      status: 'Delivered',
-      orderDate: '2024-12-08',
-      deliveryDate: '2024-12-09',
-      location: 'Kisumu'
-    },
-    {
-      id: 4,
-      productName: 'Gaming Laptop',
-      productImage: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=400&fit=crop',
-      buyer: 'Alex Wilson',
-      seller: 'Emma Davis',
-      category: 'Electronics',
-      type: 'Resale',
-      price: 120000,
-      status: 'Disputed',
-      orderDate: '2024-12-07',
-      location: 'Eldoret'
-    },
-    {
-      id: 5,
-      productName: 'Designer Handbag',
-      productImage: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=400&fit=crop',
-      buyer: 'Olivia Taylor',
-      seller: 'James Miller',
-      category: 'Accessories',
-      type: 'Resale',
-      price: 45000,
-      status: 'Cancelled',
-      orderDate: '2024-12-06',
-      location: 'Nairobi'
+  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('adminToken');
+      
+      const response = await fetch('/api/admin/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders');
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setOrders(data.data);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error('Orders fetch error:', err);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const filters = [
-    { id: 'processing', label: 'Processing', count: orders.filter(o => o.status === 'Processing').length },
-    { id: 'shipped', label: 'Shipped', count: orders.filter(o => o.status === 'Shipped').length },
-    { id: 'delivered', label: 'Delivered', count: orders.filter(o => o.status === 'Delivered').length },
-    { id: 'disputed', label: 'Disputed', count: orders.filter(o => o.status === 'Disputed').length },
-    { id: 'cancelled', label: 'Cancelled', count: orders.filter(o => o.status === 'Cancelled').length },
-    { id: 'all', label: 'All Orders', count: orders.length }
+    { id: 'all', label: 'All Orders', count: orders.length },
+    { id: 'pending', label: 'Pending', count: orders.filter(o => o.orderStatus === 'pending').length },
+    { id: 'processing', label: 'Processing', count: orders.filter(o => o.orderStatus === 'processing').length },
+    { id: 'shipped', label: 'Shipped', count: orders.filter(o => o.orderStatus === 'shipped').length },
+    { id: 'completed', label: 'Completed', count: orders.filter(o => o.orderStatus === 'completed').length },
+    { id: 'cancelled', label: 'Cancelled', count: orders.filter(o => o.orderStatus === 'cancelled').length }
   ];
 
   const filteredOrders = orders.filter(order => {
-    if (selectedFilter !== 'all' && order.status.toLowerCase() !== selectedFilter) {
+    if (selectedFilter !== 'all' && order.orderStatus !== selectedFilter) {
       return false;
     }
     
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
-        order.productName.toLowerCase().includes(query) ||
-        order.buyer.toLowerCase().includes(query) ||
-        order.seller.toLowerCase().includes(query)
+        order.orderNumber.toLowerCase().includes(query) ||
+        order.buyer.name.toLowerCase().includes(query) ||
+        order.buyer.username.toLowerCase().includes(query)
       );
     }
     
@@ -137,15 +124,14 @@ const OrderModeration = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'Delivered':
+      case 'completed':
         return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'Shipped':
+      case 'shipped':
         return <Truck className="w-5 h-5 text-blue-500" />;
-      case 'Processing':
+      case 'processing':
+      case 'pending':
         return <Clock className="w-5 h-5 text-amber-500" />;
-      case 'Disputed':
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
-      case 'Cancelled':
+      case 'cancelled':
         return <XCircle className="w-5 h-5 text-gray-500" />;
       default:
         return <AlertCircle className="w-5 h-5 text-gray-400" />;
@@ -154,29 +140,30 @@ const OrderModeration = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Delivered':
+      case 'completed':
         return 'bg-green-100 text-green-800';
-      case 'Shipped':
+      case 'shipped':
         return 'bg-blue-100 text-blue-800';
-      case 'Processing':
+      case 'processing':
+      case 'pending':
         return 'bg-amber-100 text-amber-800';
-      case 'Disputed':
-        return 'bg-red-100 text-red-800';
-      case 'Cancelled':
+      case 'cancelled':
         return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const handleOrderAction = (orderId: number, action: string) => {
-    console.log(`${action} order ${orderId}`);
-    // Implement order action logic
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-      {/* Header */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
@@ -184,17 +171,18 @@ const OrderModeration = () => {
             <p className="text-gray-600">Monitor and manage platform orders and transactions</p>
           </div>
           <div className="flex items-center gap-4">
-            <button className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all">
-              Generate Report
+            <button 
+              onClick={fetchOrders}
+              className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all"
+            >
+              Refresh Orders
             </button>
           </div>
         </div>
       </div>
 
-      {/* Search and Filters */}
       <div className="p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex flex-col md:flex-row gap-4">
-          {/* Search */}
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -202,13 +190,12 @@ const OrderModeration = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search orders by product, buyer, or seller..."
+                placeholder="Search orders by order number or buyer..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500"
               />
             </div>
           </div>
 
-          {/* Filters */}
           <div className="flex flex-wrap gap-2">
             {filters.map((filter) => (
               <button
@@ -235,7 +222,6 @@ const OrderModeration = () => {
         </div>
       </div>
 
-      {/* Orders Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
@@ -244,7 +230,10 @@ const OrderModeration = () => {
                 Order Details
               </th>
               <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Parties
+                Buyer
+              </th>
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Items
               </th>
               <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
@@ -252,143 +241,75 @@ const OrderModeration = () => {
               <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Amount
               </th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {filteredOrders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                {/* Order Details Column */}
+              <tr key={order._id} className="hover:bg-gray-50 transition-colors">
                 <td className="py-4 px-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
-                      <img
-                        src={order.productImage}
-                        alt={order.productName}
-                        className="w-full h-full object-cover"
-                      />
+                  <div>
+                    <div className="font-medium text-gray-900">{order.orderNumber}</div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Calendar className="w-3 h-3 text-gray-400" />
+                      <span className="text-xs text-gray-600">
+                        {new Date(order.createdAt).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </span>
                     </div>
-                    <div>
-                      <div className="font-medium text-gray-900">{order.productName}</div>
-                      <div className="text-sm text-gray-500">{order.category}</div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Calendar className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-600">
-                          {new Date(order.orderDate).toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric'
-                          })}
-                        </span>
-                        <MapPin className="w-3 h-3 text-gray-400 ml-2" />
-                        <span className="text-xs text-gray-600">{order.location}</span>
-                      </div>
-                      {order.trackingId && (
-                        <div className="text-xs text-blue-600 mt-1">
-                          Tracking: {order.trackingId}
-                        </div>
-                      )}
+                    <div className="flex items-center gap-2 mt-1">
+                      <MapPin className="w-3 h-3 text-gray-400" />
+                      <span className="text-xs text-gray-600">
+                        {order.shippingAddress.city}, {order.shippingAddress.county}
+                      </span>
                     </div>
                   </div>
                 </td>
 
-                {/* Parties Column */}
                 <td className="py-4 px-4">
-                  <div className="space-y-3">
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1">Buyer</div>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium">{order.buyer}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1">Seller</div>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium">{order.seller}</span>
-                      </div>
-                    </div>
+                  <div>
+                    <div className="font-medium">{order.buyer.name}</div>
+                    <div className="text-sm text-gray-500">@{order.buyer.username}</div>
+                    <div className="text-xs text-gray-600">{order.buyer.phoneNumber}</div>
                   </div>
                 </td>
 
-                {/* Status Column */}
+                <td className="py-4 px-4">
+                  <div className="space-y-1">
+                    {order.items.slice(0, 2).map((item, idx) => (
+                      <div key={idx} className="text-sm">
+                        <span className="font-medium">{item.product.name}</span>
+                        <span className="text-gray-500"> × {item.quantity}</span>
+                      </div>
+                    ))}
+                    {order.items.length > 2 && (
+                      <div className="text-xs text-gray-500">
+                        +{order.items.length - 2} more items
+                      </div>
+                    )}
+                  </div>
+                </td>
+
                 <td className="py-4 px-4">
                   <div className="flex items-center gap-2">
-                    {getStatusIcon(order.status)}
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                      {order.status}
+                    {getStatusIcon(order.orderStatus)}
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.orderStatus)}`}>
+                      {order.orderStatus}
                     </span>
                   </div>
-                  {order.deliveryDate && (
-                    <div className="text-xs text-gray-600 mt-2">
-                      Delivered: {new Date(order.deliveryDate).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric'
-                      })}
-                    </div>
-                  )}
+                  <div className="text-xs text-gray-600 mt-1">
+                    Payment: {order.paymentStatus}
+                  </div>
                 </td>
 
-                {/* Amount Column */}
                 <td className="py-4 px-4">
                   <div className="font-bold text-gray-900">
-                    {order.type === 'Donation' ? 'FREE' : `KSh ${order.price.toLocaleString()}`}
+                    KSh {order.totalAmount.toLocaleString()}
                   </div>
-                  {order.type === 'Resale' && (
-                    <div className="text-xs text-green-600">
-                      Commission: KSh {(order.price * 0.05).toLocaleString()}
-                    </div>
-                  )}
-                </td>
-
-                {/* Actions Column */}
-                <td className="py-4 px-4">
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={() => handleOrderAction(order.id, 'view')}
-                      className="px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors flex items-center gap-1 justify-center"
-                    >
-                      <Eye className="w-3 h-3" />
-                      <span className="text-xs">Details</span>
-                    </button>
-                    
-                    {order.status === 'Processing' && (
-                      <button
-                        onClick={() => handleOrderAction(order.id, 'ship')}
-                        className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1 justify-center"
-                      >
-                        <Truck className="w-3 h-3" />
-                        <span>Mark Shipped</span>
-                      </button>
-                    )}
-                    
-                    {order.status === 'Shipped' && (
-                      <button
-                        onClick={() => handleOrderAction(order.id, 'deliver')}
-                        className="px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors"
-                      >
-                        Mark Delivered
-                      </button>
-                    )}
-                    
-                    {order.status === 'Disputed' && (
-                      <button
-                        onClick={() => handleOrderAction(order.id, 'resolve')}
-                        className="px-3 py-1.5 bg-red-600 text-white text-xs font-semibold rounded-lg hover:bg-red-700 transition-colors"
-                      >
-                        Resolve Dispute
-                      </button>
-                    )}
-                    
-                    <button
-                      onClick={() => handleOrderAction(order.id, 'message')}
-                      className="px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg hover:border-green-500 hover:text-green-600 transition-colors flex items-center gap-1 justify-center"
-                    >
-                      <MessageCircle className="w-3 h-3" />
-                      <span className="text-xs">Message</span>
-                    </button>
+                  <div className="text-xs text-green-600">
+                    Commission: KSh {(order.totalAmount * 0.05).toLocaleString()}
                   </div>
                 </td>
               </tr>
@@ -397,7 +318,6 @@ const OrderModeration = () => {
         </table>
       </div>
 
-      {/* Empty State */}
       {filteredOrders.length === 0 && (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -408,32 +328,31 @@ const OrderModeration = () => {
         </div>
       )}
 
-      {/* Summary */}
       <div className="p-6 border-t border-gray-200 bg-gray-50">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center p-4 bg-white rounded-lg">
             <div className="text-lg font-bold text-gray-900">
-              KSh {orders.filter(o => o.type === 'Resale').reduce((sum, order) => sum + order.price, 0).toLocaleString()}
+              KSh {orders.reduce((sum, order) => sum + order.totalAmount, 0).toLocaleString()}
             </div>
             <div className="text-xs text-gray-600">Total Volume</div>
           </div>
           <div className="text-center p-4 bg-white rounded-lg">
             <div className="text-lg font-bold text-gray-900">
-              KSh {(orders.filter(o => o.type === 'Resale').reduce((sum, order) => sum + order.price, 0) * 0.05).toLocaleString()}
+              KSh {(orders.reduce((sum, order) => sum + order.totalAmount, 0) * 0.05).toLocaleString()}
             </div>
             <div className="text-xs text-gray-600">Total Commission</div>
           </div>
           <div className="text-center p-4 bg-white rounded-lg">
             <div className="text-lg font-bold text-gray-900">
-              {orders.filter(o => o.status === 'Delivered').length}
+              {orders.filter(o => o.orderStatus === 'completed').length}
             </div>
             <div className="text-xs text-gray-600">Completed Orders</div>
           </div>
           <div className="text-center p-4 bg-white rounded-lg">
             <div className="text-lg font-bold text-gray-900">
-              {orders.filter(o => o.status === 'Disputed').length}
+              {orders.filter(o => o.orderStatus === 'pending' || o.orderStatus === 'processing').length}
             </div>
-            <div className="text-xs text-gray-600">Open Disputes</div>
+            <div className="text-xs text-gray-600">Pending Orders</div>
           </div>
         </div>
       </div>

@@ -25,7 +25,8 @@ interface ProfileSidebarProps {
 }
 
 const ProfileSidebar = ({ user, activeTab, onTabChange, onLogout }: ProfileSidebarProps) => {
-  const { unreadCount } = useMessages();
+  const { conversations } = useMessages();
+  const unreadCount = conversations.filter(conv => (conv as any).unread).length;
   // Remove notifications tab if not in this sprint
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: User },

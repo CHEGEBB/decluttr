@@ -18,7 +18,7 @@ export function Navbar({ onSearch }: NavbarProps) {
   const { conversations, loading } = useMessages();
   const [searchQuery, setSearchQuery] = useState('');
   
-  const unreadCount = conversations.filter(conv => conv.unread).length;
+  const unreadCount = conversations.filter(conv => (conv as any).unread).length;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const router = useRouter();
