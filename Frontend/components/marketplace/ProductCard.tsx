@@ -3,6 +3,7 @@
 // components/marketplace/ProductCard.tsx
 'use client'
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Heart, Star, MapPin, Eye, Tag, ShoppingCart, CheckCircle2 } from 'lucide-react';
 import { useCartContext } from '@/context/CartContext';
 
@@ -270,12 +271,17 @@ export function ProductCard({ product, onAddToCart, productId }: ProductCardProp
             <div className={`flex gap-2 mt-3 transition-all duration-300 ${
               isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
             }`}>
-              <button className="flex-1 py-2.5 border-2 border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:border-red-600 hover:text-red-600 transition-colors">
-                Buy Now
-              </button>
-              <button className="flex-1 py-2.5 border-2 border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors">
-                Message
-              </button>
+            <Link href="/main/cart" className="flex-1">
+  <button className="w-full py-2.5 border-2 border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:border-red-600 hover:text-red-600 transition-colors">
+    Buy Now
+  </button>
+</Link>
+
+<Link href="/main/messages" className="flex-1">
+  <button className="w-full py-2.5 border-2 border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors">
+    Message
+  </button>
+</Link> 
             </div>
           </div>
         </div>

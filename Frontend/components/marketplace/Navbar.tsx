@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Search, ShoppingCart, MessageCircle, User, LogOut, Menu, Home, Store, Phone, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
+import { useMessages } from '@/hooks/useMessages';
 import { useCartContext } from '@/context/CartContext';
 
 interface NavbarProps {
@@ -14,6 +15,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ onSearch }: NavbarProps) {
+  const { unreadCount, loading } = useMessages();
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -144,15 +146,18 @@ export function Navbar({ onSearch }: NavbarProps) {
                   );
                 })}
                 <div className="pt-4 border-t">
-                  <Link 
-                    href="/main/messages" 
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center text-gray-700 hover:text-red-600 py-2"
-                  >
-                    <MessageCircle className="w-5 h-5 mr-3" />
-                    Messages
-                    <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
-                  </Link>
+                 <Link 
+        href="/main/messages" 
+        className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors relative"
+      >
+        <MessageCircle className="w-6 h-6" />
+        <span className="font-semibold">Messages</span>
+        {!loading && unreadCount > 0 && (
+          <span className="absolute -top-1 left-3 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </span>
+        )}
+      </Link> 
                   <Link 
                     href="/main/cart" 
                     onClick={() => setMobileMenuOpen(false)}
@@ -277,11 +282,18 @@ export function Navbar({ onSearch }: NavbarProps) {
             </div>
 
             <div className="flex items-center gap-4 lg:gap-6">
-              <Link href="/main/messages" className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors relative">
-                <MessageCircle className="w-6 h-6" />
-                <span className="font-semibold">Messages</span>
-                <span className="absolute -top-1 left-3 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">3</span>
-              </Link>
+              <Link 
+        href="/main/messages" 
+        className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors relative"
+      >
+        <MessageCircle className="w-6 h-6" />
+        <span className="font-semibold">Messages</span>
+        {!loading && unreadCount > 0 && (
+          <span className="absolute -top-1 left-3 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </span>
+        )}
+      </Link>
               
               <Link href="/main/cart" className="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors relative">
                 <ShoppingCart className="w-6 h-6" />

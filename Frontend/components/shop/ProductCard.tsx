@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
   Heart, 
   MapPin, 
@@ -252,9 +253,11 @@ const ProductCard = ({
                 </span>
               </button>
             </div>
+  <Link href="/main/messages" className="flex-1">
             <button className="p-2.5 border border-gray-200 text-gray-700 rounded-lg hover:border-red-500 hover:text-red-500 transition-colors">
               <MessageCircle className="w-4 h-4" />
             </button>
+            </Link>
           </div>
         </div>
       </div>

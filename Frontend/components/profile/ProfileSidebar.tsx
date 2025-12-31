@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { User as UserType } from '@/services/authService';
+import { useMessages } from '@/hooks/useMessages';
 
 interface ProfileSidebarProps {
   user: UserType | null;
@@ -24,6 +25,7 @@ interface ProfileSidebarProps {
 }
 
 const ProfileSidebar = ({ user, activeTab, onTabChange, onLogout }: ProfileSidebarProps) => {
+  const { unreadCount } = useMessages();
   // Remove notifications tab if not in this sprint
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: User },
@@ -105,14 +107,14 @@ const ProfileSidebar = ({ user, activeTab, onTabChange, onLogout }: ProfileSideb
               }`}
             >
               <Icon className="w-5 h-5" />
-              <span>{tab.label}</span>
-              {tab.id === 'messages' && (
-                <span className="ml-auto bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  0
-                </span>
-              )}
-            </button>
-          );
+      <span>{tab.label}</span>
+      {tab.id === 'messages' && unreadCount > 0 && (
+        <span className="ml-auto bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+          {unreadCount > 9 ? '9+' : unreadCount}
+        </span>
+      )}
+    </button>
+  );
         })}
       </div>
 
