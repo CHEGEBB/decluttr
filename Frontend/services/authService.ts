@@ -101,37 +101,66 @@ export interface User {
      * Log in an existing user
      */
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
-      try {
-        const response = await fetch(`${this.baseUrl}/auth/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(credentials),
-        });
-  
-        const data = await response.json();
-  
-        if (!response.ok) {
-          throw {
-            success: false,
-            message: data.message || 'Login failed',
-            error: data.error,
-          } as ApiError;
-        }
-  
-        // Store token and user data
-        if (data.success && data.data) {
-          this.setToken(data.data.token);
-          this.setUser(data.data.user);
-        }
-  
-        return data as AuthResponse;
-      } catch (error) {
-        console.error('Login error:', error);
-        throw error;
-      }
+  try {
+    const response = await fetch(`${this.baseUrl}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw {
+        success: false,
+        message: data.message || 'Login failed',
+        error: data.error,
+      } as ApiError;
     }
+
+    // Store token and user data
+    if (data.success && data.data) {
+      this.setToken(data.data.token);
+      this.setUser(data.data.user);
+    }
+
+    return data as AuthResponse;
+  } catch (error) {
+    console.error('Login error:', error);
+    
+    // Handle network errors
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      throw {
+        success: false,
+        message: 'Network error. Please check your connection and ensure the server is running.',
+        error: 'NETWORK_ERROR'
+      } as ApiError;
+    }
+    
+    // Handle JSON parsing errors
+    if (error instanceof SyntaxError) {
+      throw {
+        success: false,
+        message: 'Invalid response from server',
+        error: 'INVALID_RESPONSE'
+      } as ApiError;
+    }
+    
+    // Re-throw ApiError as-is
+    if (error && typeof error === 'object' && 'success' in error) {
+      throw error;
+    }
+    
+    // Unknown error
+    throw {
+      success: false,
+      message: 'An unexpected error occurred. Please try again.',
+      error: 'UNKNOWN_ERROR'
+    } as ApiError;
+  }
+}
   
     /**
      * Get current user profile (requires token)
