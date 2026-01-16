@@ -1,204 +1,273 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// hooks/useAdmin.ts
-'use client'
+import { useState, useCallback, useEffect } from 'react';
+import adminService, {
+  DashboardData,
+  AdminUser,
+  PendingProduct,
+  AdminOrder,
+  PlatformStats,
+} from '@/services/adminService';
 
-import { useState, useCallback } from 'react';
-import adminService, { 
-  AdminDashboardData, 
-  PendingProduct, 
-  AdminUser 
-} from '../services/adminService';
-import { useAuth } from './useAuth';
-
-interface UseAdminReturn {
+export const useAdmin = () => {
   // State
-  dashboard: AdminDashboardData | null;
-  pendingProducts: PendingProduct[];
-  users: AdminUser[];
-  orders: any[];
-  isLoading: boolean;
-  error: string | null;
-  isAdmin: boolean; // Add this
-  
-  // Methods
-  getDashboard: () => Promise<void>;
-  getPendingProducts: () => Promise<void>;
-  getAllUsers: () => Promise<void>;
-  getAllOrders: () => Promise<void>;
-  verifyProduct: (productId: string) => Promise<void>;
-  deleteProduct: (productId: string) => Promise<void>;
-  deactivateUser: (userId: string) => Promise<void>;
-  clearError: () => void;
-}
-
-export function useAdmin(): UseAdminReturn {
-  const [dashboard, setDashboard] = useState<AdminDashboardData | null>(null);
-  const [pendingProducts, setPendingProducts] = useState<PendingProduct[]>([]);
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [products, setProducts] = useState<PendingProduct[]>([]);
+  const [pendingProducts, setPendingProducts] = useState<PendingProduct[]>([]);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const { isAdmin: userIsAdmin } = useAuth(); // Rename to avoid conflict
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const isAdminUser = await adminService.checkAdminAuth();
+      setIsAdmin(isAdminUser);
+    };
+    checkAdmin();
+  }, []);
 
+  // Clear error
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
+  // Dashboard
   const getDashboard = useCallback(async () => {
-    if (!userIsAdmin) {
-      setError('Admin access required');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    
     try {
+      setIsLoading(true);
+      setError(null);
       const data = await adminService.getDashboard();
       setDashboard(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to load dashboard');
+      setError(err.message || 'Failed to fetch dashboard');
+      console.error('Dashboard fetch error:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [userIsAdmin]);
+  }, []);
 
-  const getPendingProducts = useCallback(async () => {
-    if (!userIsAdmin) {
-      setError('Admin access required');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    
+  const getPlatformStats = useCallback(async () => {
     try {
-      const products = await adminService.getPendingProducts();
-      setPendingProducts(products);
+      setIsLoading(true);
+      setError(null);
+      const data = await adminService.getPlatformStats();
+      setPlatformStats(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to load pending products');
+      setError(err.message || 'Failed to fetch platform stats');
+      console.error('Platform stats error:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [userIsAdmin]);
+  }, []);
 
+  // Users
   const getAllUsers = useCallback(async () => {
-    if (!userIsAdmin) {
-      setError('Admin access required');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    
     try {
-      const userList = await adminService.getAllUsers();
-      setUsers(userList);
+      setIsLoading(true);
+      setError(null);
+      const data = await adminService.getAllUsers();
+      setUsers(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to load users');
+      setError(err.message || 'Failed to fetch users');
+      console.error('Users fetch error:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [userIsAdmin]);
+  }, []);
 
-  const getAllOrders = useCallback(async () => {
-    if (!userIsAdmin) {
-      setError('Admin access required');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    
+  const deleteUser = useCallback(async (userId: string) => {
     try {
-      const orderList = await adminService.getAllOrders();
-      setOrders(orderList);
+      setIsLoading(true);
+      setError(null);
+      await adminService.deleteUser(userId);
+      // Remove from local state
+      setUsers(prevUsers => prevUsers.filter(user => user._id !== userId));
     } catch (err: any) {
-      setError(err.message || 'Failed to load orders');
+      setError(err.message || 'Failed to delete user');
+      console.error('Delete user error:', err);
+      throw err;
     } finally {
       setIsLoading(false);
     }
-  }, [userIsAdmin]);
-
-  const verifyProduct = useCallback(async (productId: string) => {
-    if (!userIsAdmin) {
-      setError('Admin access required');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      await adminService.verifyProduct(productId);
-      // Refresh pending products
-      await getPendingProducts();
-    } catch (err: any) {
-      setError(err.message || 'Failed to verify product');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userIsAdmin, getPendingProducts]);
-
-  const deleteProduct = useCallback(async (productId: string) => {
-    if (!userIsAdmin) {
-      setError('Admin access required');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      await adminService.deleteProduct(productId);
-      // Refresh pending products
-      await getPendingProducts();
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete product');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userIsAdmin, getPendingProducts]);
+  }, []);
 
   const deactivateUser = useCallback(async (userId: string) => {
-    if (!userIsAdmin) {
-      setError('Admin access required');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    
     try {
-      await adminService.deactivateUser(userId);
-      // Refresh user list
-      await getAllUsers();
+      setIsLoading(true);
+      setError(null);
+      const updatedUser = await adminService.toggleUserStatus(userId);
+      // Update local state
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
+          user._id === userId ? { ...user, isActive: updatedUser.isActive } : user
+        )
+      );
     } catch (err: any) {
-      setError(err.message || 'Failed to deactivate user');
+      setError(err.message || 'Failed to update user status');
+      console.error('Deactivate user error:', err);
+      throw err;
     } finally {
       setIsLoading(false);
     }
-  }, [userIsAdmin, getAllUsers]);
+  }, []);
+
+  // Products
+  const getAllProducts = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await adminService.getAllProducts();
+      setProducts(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch products');
+      console.error('Products fetch error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const getPendingProducts = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await adminService.getPendingProducts();
+      setPendingProducts(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch pending products');
+      console.error('Pending products error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const verifyProduct = useCallback(async (productId: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      await adminService.verifyProduct(productId);
+      // Remove from pending products
+      setPendingProducts(prevProducts =>
+        prevProducts.filter(product => product._id !== productId)
+      );
+      // Refresh products list if needed
+      if (products.length > 0) {
+        await getAllProducts();
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to verify product');
+      console.error('Verify product error:', err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [products.length, getAllProducts]);
+
+  const deleteProduct = useCallback(async (productId: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      await adminService.deleteProduct(productId);
+      // Remove from local state
+      setPendingProducts(prevProducts =>
+        prevProducts.filter(product => product._id !== productId)
+      );
+      setProducts(prevProducts =>
+        prevProducts.filter(product => product._id !== productId)
+      );
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete product');
+      console.error('Delete product error:', err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Orders
+  const getAllOrders = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await adminService.getAllOrders();
+      setOrders(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch orders');
+      console.error('Orders fetch error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const updateOrderStatus = useCallback(async (orderId: string, status: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const updatedOrder = await adminService.updateOrderStatus(orderId, status);
+      // Update local state
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order._id === orderId ? { ...order, orderStatus: updatedOrder.orderStatus } : order
+        )
+      );
+    } catch (err: any) {
+      setError(err.message || 'Failed to update order status');
+      console.error('Update order status error:', err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Search
+  const search = useCallback(async (query: string, type?: 'users' | 'products' | 'orders') => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const results = await adminService.search(query, type);
+      return results;
+    } catch (err: any) {
+      setError(err.message || 'Search failed');
+      console.error('Search error:', err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Logout
+  const logout = useCallback(() => {
+    adminService.logout();
+  }, []);
 
   return {
     // State
     dashboard,
-    pendingProducts,
     users,
+    products,
+    pendingProducts,
     orders,
+    platformStats,
     isLoading,
     error,
-    isAdmin: userIsAdmin, // Return the isAdmin value
-    
-    // Methods
+    isAdmin,
+
+    // Actions
+    clearError,
     getDashboard,
-    getPendingProducts,
+    getPlatformStats,
     getAllUsers,
-    getAllOrders,
+    deleteUser,
+    deactivateUser,
+    getAllProducts,
+    getPendingProducts,
     verifyProduct,
     deleteProduct,
-    deactivateUser,
-    clearError,
+    getAllOrders,
+    updateOrderStatus,
+    search,
+    logout,
   };
-}
+};

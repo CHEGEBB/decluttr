@@ -1,295 +1,366 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// services/adminService.ts
-import authService from './authService';
+import axios from 'axios';
 
-export interface AdminStats {
-  totalExchanges: number;
-  pendingOrders: number;
-  pendingDeliveries: number;
-  unverifiedProducts: number;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+// Admin API endpoints
+const ADMIN_ENDPOINTS = {
+  DASHBOARD: '/admin/dashboard',
+  STATS: '/admin/stats',
+  USERS: '/admin/users',
+  PRODUCTS: '/admin/products',
+  PENDING_PRODUCTS: '/admin/products/pending',
+  ORDERS: '/admin/orders',
+  TRANSACTIONS: '/admin/transactions',
+  SEARCH: '/admin/search',
+};
+
+// Create axios instance with default config
+const adminAxios = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add auth token to requests
+adminAxios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Handle response errors
+adminAxios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Unauthorized - clear token and redirect to login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/admin';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Types
+export interface DashboardStats {
   totalUsers: number;
+  activeUsers: number;
+  totalProducts: number;
+  verifiedProducts: number;
+  pendingProducts: number;
+  totalOrders: number;
+  pendingOrders: number;
+  completedOrders: number;
   totalRevenue: number;
+  totalExchanges: number;
 }
 
-export interface AdminOrder {
-  id: string;
-  orderNumber: string;
-  totalAmount: number;
-  paymentStatus: string;
-  orderStatus: string;
-  buyer: {
-    name: string;
-    username: string;
-  };
-  seller?: {
-    name: string;
-    username: string;
-  };
-  createdAt: string;
+export interface PlatformMetrics {
+  averageOrderValue: number;
+  conversionRate: number;
+  activeUserRate: number;
+  productVerificationRate: number;
 }
 
-export interface PendingProduct {
-  id: string;
-  name: string;
-  price: number;
-  status: string;
-  isVerified: boolean;
-  seller: {
-    name: string;
-    username: string;
-    email: string;
-    phoneNumber: string;
-    location: string;
+export interface DashboardData {
+  stats: DashboardStats;
+  metrics: PlatformMetrics;
+  recentActivity: {
+    orders: any[];
+    users: any[];
   };
-  createdAt: string;
 }
 
 export interface AdminUser {
   id: string;
+  _id: string;
   name: string;
   username: string;
   email: string;
   phoneNumber: string;
   location: string;
+  role: string;
+  isActive: boolean;
   totalIncome: number;
   totalExchanges: number;
   ratings: number;
-  isActive: boolean;
   createdAt: string;
+  profileImage?: {
+    url: string;
+    public_id: string;
+  };
 }
 
-export interface AdminDashboardData {
-  stats: AdminStats;
-  recentOrders: AdminOrder[];
+export interface PendingProduct {
+  id: string;
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  status: string;
+  isVerified: boolean;
+  seller: {
+    _id: string;
+    name: string;
+    email: string;
+    username: string;
+    phoneNumber: string;
+    location: string;
+  };
+  images: Array<{
+    url: string;
+    public_id: string;
+  }>;
+  createdAt: string;
+  listingType: string;
 }
 
+export interface AdminOrder {
+  _id: string;
+  orderNumber: string;
+  buyer: {
+    _id: string;
+    name: string;
+    username: string;
+    email: string;
+    phoneNumber: string;
+  };
+  items: Array<{
+    product: {
+      _id: string;
+      name: string;
+      category: string;
+      images: Array<{ url: string }>;
+    };
+    seller: {
+      _id: string;
+      name: string;
+      username: string;
+    };
+    price: number;
+    quantity: number;
+  }>;
+  totalAmount: number;
+  orderStatus: string;
+  paymentStatus: string;
+  shippingAddress: {
+    street: string;
+    city: string;
+    county: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PlatformStats {
+  revenueByMonth: Array<{
+    _id: { year: number; month: number };
+    revenue: number;
+    orders: number;
+  }>;
+  productsByCategory: Array<{
+    _id: string;
+    count: number;
+    totalValue: number;
+  }>;
+  usersByLocation: Array<{
+    _id: string;
+    count: number;
+  }>;
+  topSellers: Array<{
+    sellerId: string;
+    sellerName: string;
+    sellerUsername: string;
+    totalSales: number;
+    orderCount: number;
+  }>;
+}
+
+// Admin Service Class
 class AdminService {
-  private baseUrl: string;
-
-  constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-  }
-
-  /**
-   * Check if current user is admin
-   */
-  isAdmin(): boolean {
-    return authService.isAdmin();
-  }
-
-  /**
-   * Get admin dashboard data
-   */
-  async getDashboard(): Promise<AdminDashboardData> {
+  // Dashboard
+  async getDashboard(): Promise<DashboardData> {
     try {
-      const response = await fetch(`${this.baseUrl}/admin/dashboard`, {
-        method: 'GET',
-        headers: authService.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw {
-          success: false,
-          message: data.message || 'Failed to fetch dashboard data',
-          error: data.error,
-        };
-      }
-
-      return data.data;
-    } catch (error) {
-      console.error('Get admin dashboard error:', error);
-      throw error;
+      const response = await adminAxios.get(ADMIN_ENDPOINTS.DASHBOARD);
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch dashboard data');
     }
   }
 
-  /**
-   * Get pending products for verification
-   */
-  async getPendingProducts(): Promise<PendingProduct[]> {
+  async getPlatformStats(): Promise<PlatformStats> {
     try {
-      const response = await fetch(`${this.baseUrl}/admin/products/pending`, {
-        method: 'GET',
-        headers: authService.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw {
-          success: false,
-          message: data.message || 'Failed to fetch pending products',
-          error: data.error,
-        };
-      }
-
-      return data.data || [];
-    } catch (error) {
-      console.error('Get pending products error:', error);
-      throw error;
+      const response = await adminAxios.get(ADMIN_ENDPOINTS.STATS);
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch platform stats');
     }
   }
 
-  /**
-   * Verify a product
-   */
-  async verifyProduct(productId: string): Promise<any> {
-    try {
-      const response = await fetch(`${this.baseUrl}/admin/products/${productId}/verify`, {
-        method: 'PUT',
-        headers: authService.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw {
-          success: false,
-          message: data.message || 'Failed to verify product',
-          error: data.error,
-        };
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Verify product error:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get all users
-   */
+  // Users
   async getAllUsers(): Promise<AdminUser[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/admin/users`, {
-        method: 'GET',
-        headers: authService.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw {
-          success: false,
-          message: data.message || 'Failed to fetch users',
-          error: data.error,
-        };
-      }
-
-      return data.data || [];
-    } catch (error) {
-      console.error('Get all users error:', error);
-      throw error;
+      const response = await adminAxios.get(ADMIN_ENDPOINTS.USERS);
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch users');
     }
   }
 
-  /**
-   * Get all orders
-   */
-  async getAllOrders(): Promise<any[]> {
+  async getUser(userId: string): Promise<any> {
     try {
-      const response = await fetch(`${this.baseUrl}/admin/orders`, {
-        method: 'GET',
-        headers: authService.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw {
-          success: false,
-          message: data.message || 'Failed to fetch orders',
-          error: data.error,
-        };
-      }
-
-      return data.data || [];
-    } catch (error) {
-      console.error('Get all orders error:', error);
-      throw error;
+      const response = await adminAxios.get(`${ADMIN_ENDPOINTS.USERS}/${userId}`);
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch user');
     }
   }
 
-  /**
-   * Delete a product
-   */
-  async deleteProduct(productId: string): Promise<any> {
+  async deleteUser(userId: string): Promise<void> {
     try {
-      const response = await fetch(`${this.baseUrl}/admin/products/${productId}`, {
-        method: 'DELETE',
-        headers: authService.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw {
-          success: false,
-          message: data.message || 'Failed to delete product',
-          error: data.error,
-        };
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Delete product error:', error);
-      throw error;
+      await adminAxios.delete(`${ADMIN_ENDPOINTS.USERS}/${userId}`);
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to delete user');
     }
   }
 
-  /**
-   * Deactivate a user
-   */
-  async deactivateUser(userId: string): Promise<any> {
+  async toggleUserStatus(userId: string): Promise<AdminUser> {
     try {
-      const response = await fetch(`${this.baseUrl}/admin/users/${userId}`, {
-        method: 'DELETE',
-        headers: authService.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw {
-          success: false,
-          message: data.message || 'Failed to deactivate user',
-          error: data.error,
-        };
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Deactivate user error:', error);
-      throw error;
+      const response = await adminAxios.put(`${ADMIN_ENDPOINTS.USERS}/${userId}/toggle-status`);
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to update user status');
     }
   }
 
-  /**
-   * Admin login (same as user login but checks for admin role)
-   */
-  async adminLogin(identifier: string, password: string): Promise<any> {
+  // Products
+  async getAllProducts(): Promise<PendingProduct[]> {
     try {
-      // Use the auth service for login
-      const response = await authService.login({ identifier, password });
+      const response = await adminAxios.get(ADMIN_ENDPOINTS.PRODUCTS);
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch products');
+    }
+  }
+
+  async getPendingProducts(): Promise<PendingProduct[]> {
+    try {
+      const response = await adminAxios.get(ADMIN_ENDPOINTS.PENDING_PRODUCTS);
+      return response.data.data.map((product: any) => ({
+        ...product,
+        id: product._id
+      }));
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch pending products');
+    }
+  }
+
+  async verifyProduct(productId: string): Promise<void> {
+    try {
+      await adminAxios.put(`${ADMIN_ENDPOINTS.PRODUCTS}/${productId}/verify`);
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to verify product');
+    }
+  }
+
+  async deleteProduct(productId: string): Promise<void> {
+    try {
+      await adminAxios.delete(`${ADMIN_ENDPOINTS.PRODUCTS}/${productId}`);
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to delete product');
+    }
+  }
+
+  // Orders
+  async getAllOrders(): Promise<AdminOrder[]> {
+    try {
+      const response = await adminAxios.get(ADMIN_ENDPOINTS.ORDERS);
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch orders');
+    }
+  }
+
+  async getOrder(orderId: string): Promise<AdminOrder> {
+    try {
+      const response = await adminAxios.get(`${ADMIN_ENDPOINTS.ORDERS}/${orderId}`);
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch order');
+    }
+  }
+
+  async updateOrderStatus(orderId: string, status: string): Promise<AdminOrder> {
+    try {
+      const response = await adminAxios.put(`${ADMIN_ENDPOINTS.ORDERS}/${orderId}/status`, {
+        orderStatus: status
+      });
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to update order status');
+    }
+  }
+
+  // Transactions
+  async getAllTransactions(): Promise<any[]> {
+    try {
+      const response = await adminAxios.get(ADMIN_ENDPOINTS.TRANSACTIONS);
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch transactions');
+    }
+  }
+
+  // Search
+  async search(query: string, type?: 'users' | 'products' | 'orders'): Promise<any> {
+    try {
+      const params: any = { query };
+      if (type) params.type = type;
       
-      // Check if user is admin
-      if (response.data.user.role !== 'admin') {
-        throw {
-          success: false,
-          message: 'Access denied. Admin privileges required.',
-        };
+      const response = await adminAxios.get(ADMIN_ENDPOINTS.SEARCH, { params });
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Search failed');
+    }
+  }
+
+  // Admin Authentication Check
+  async checkAdminAuth(): Promise<boolean> {
+    try {
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+      
+      if (!token || !user) {
+        return false;
       }
 
-      return response;
+      const userData = JSON.parse(user);
+      return userData.role === 'admin';
     } catch (error) {
-      console.error('Admin login error:', error);
-      throw error;
+      return false;
     }
+  }
+
+  // Logout
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('adminAuthenticated');
+    window.location.href = '/admin';
   }
 }
 
-// Create a singleton instance
-const adminService = new AdminService();
+// Export singleton instance
+export const adminService = new AdminService();
 export default adminService;
