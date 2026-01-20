@@ -4,14 +4,14 @@
 'use client'
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Heart, Star, MapPin, Eye, Tag, ShoppingCart, CheckCircle2 } from 'lucide-react';
+import { Heart, Star, MapPin, Eye, Tag, ShoppingCart, CheckCircle2, MessageCircle } from 'lucide-react';
 import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   id: number;
   name: string;
   image: string;
-  seller: string;
+  seller: string | { name: string; phoneNumber?: string };
   category: string;
   type: string;
   price: number;
@@ -205,7 +205,7 @@ export function ProductCard({ product, onAddToCart, productId }: ProductCardProp
           {/* Seller and Rating */}
           <div className="flex items-center justify-between mb-4">
             <span className="text-base text-gray-600">
-              @{product.seller}
+              @{typeof product.seller === 'string' ? product.seller : product.seller.name}
             </span>
             <div className="flex items-center gap-1.5">
               <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
@@ -268,20 +268,40 @@ export function ProductCard({ product, onAddToCart, productId }: ProductCardProp
             </button>
             
             {/* Quick Actions */}
-            <div className={`flex gap-2 mt-3 transition-all duration-300 ${
-              isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-            }`}>
-            <Link href="/main/cart" className="flex-1">
-  <button className="w-full py-2.5 border-2 border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:border-red-600 hover:text-red-600 transition-colors">
-    Buy Now
-  </button>
-</Link>
+           <div className={`flex gap-2 mt-3 transition-all duration-300 ${
+  isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+}`}>
+  <Link href="/main/cart" className="flex-1">
+    <button className="w-full py-2.5 border-2 border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:border-red-600 hover:text-red-600 transition-colors">
+      Buy Now
+    </button>
+  </Link>
 
-<Link href="/main/messages" className="flex-1">
-  <button className="w-full py-2.5 border-2 border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors">
-    Message
+  {/* WhatsApp Button - UPDATED */}
+  <button 
+    onClick={() => {
+      // Get seller phone number and format it (remove spaces, dashes, etc.)
+      const sellerObj = typeof product.seller === 'string' ? null : product.seller;
+      const phone = sellerObj?.phoneNumber?.replace(/[^0-9+]/g, '') || '';
+      
+      if (!phone) {
+        alert('Seller contact not available');
+        return;
+      }
+      
+      // Create pre-filled WhatsApp message
+      const message = `Hi! I'm interested in your product: ${product.name}`;
+      
+      // Open WhatsApp in new tab
+      const whatsappUrl = `https://web.whatsapp.com/${phone}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    }}
+    className="flex-1 py-2.5 border-2 border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:border-green-600 hover:text-green-600 transition-colors flex items-center justify-center gap-1.5"
+  >
+    <MessageCircle className="w-4 h-4" />
+    WhatsApp
   </button>
-</Link> 
+=
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-// controllers/productController.js (updated)
+// controllers/productController.js (FIXED - includes phoneNumber everywhere)
 const Product = require('../models/Product');
 const cloudinary = require('../config/cloudinary');
 
@@ -22,7 +22,6 @@ exports.createProduct = async (req, res) => {
       specifications
     } = req.body;
 
-    // Required field validation
     if (!name || !description || !category || !listingType) {
       return res.status(400).json({
         success: false,
@@ -38,7 +37,6 @@ exports.createProduct = async (req, res) => {
       });
     }
 
-    // Validate category
     const validCategories = ['Books', 'Electronics', 'Shoes', 'Clothes', 'Furniture', 'Accessories', 'Sports', 'Home', 'Arts', 'Entertainment'];
     if (!validCategories.includes(category)) {
       return res.status(400).json({
@@ -69,7 +67,6 @@ exports.createProduct = async (req, res) => {
       }
     }
 
-    // Parse tags if provided as string
     let parsedTags = [];
     if (tags) {
       if (typeof tags === 'string') {
@@ -79,7 +76,6 @@ exports.createProduct = async (req, res) => {
       }
     }
 
-    // Parse specifications if provided as string
     let parsedSpecifications = {};
     if (specifications) {
       try {
@@ -113,6 +109,7 @@ exports.createProduct = async (req, res) => {
       specifications: parsedSpecifications
     });
 
+    // ✅ ALREADY CORRECT - includes phoneNumber
     await product.populate('seller', 'name username email location ratings totalExchanges phoneNumber');
 
     res.status(201).json({
@@ -159,42 +156,34 @@ exports.getProducts = async (req, res) => {
 
     const query = {};
     
-    // Only show verified products by default
     if (verified === 'true') {
       query.isVerified = true;
     }
     
-    // Only show available products
     query.status = 'available';
 
-    // Category filter
     if (category && category !== 'all') {
       query.category = category;
     }
 
-    // Listing type filter
     if (listingType && listingType !== 'all') {
       query.listingType = listingType;
     }
 
-    // Price range filter
     if (minPrice || maxPrice) {
       query.price = {};
       if (minPrice) query.price.$gte = parseFloat(minPrice);
       if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
 
-    // Condition filter
     if (condition && condition !== 'all') {
       query.condition = condition;
     }
 
-    // Location filter
     if (location && location !== 'all') {
       query.location = location;
     }
 
-    // Search functionality
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -204,24 +193,22 @@ exports.getProducts = async (req, res) => {
       ];
     }
 
-    // Sort options
     const sortOptions = {};
     if (sortBy === 'price') {
       sortOptions.price = sortOrder === 'asc' ? 1 : -1;
     } else if (sortBy === 'views') {
       sortOptions.views = -1;
     } else if (sortBy === 'rating') {
-      // Note: This would require a different approach as rating is on seller
       sortOptions.createdAt = -1;
     } else {
       sortOptions.createdAt = sortOrder === 'asc' ? 1 : -1;
     }
 
-    // Pagination
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
+    // ✅ ALREADY CORRECT - includes phoneNumber
     const products = await Product.find(query)
       .populate('seller', 'name username email location ratings totalExchanges phoneNumber')
       .sort(sortOptions)
@@ -229,8 +216,6 @@ exports.getProducts = async (req, res) => {
       .skip(skip);
 
     const count = await Product.countDocuments(query);
-
-    // Calculate pagination metadata
     const totalPages = Math.ceil(count / limitNum);
 
     res.status(200).json({
@@ -257,6 +242,7 @@ exports.getProducts = async (req, res) => {
 
 exports.getProduct = async (req, res) => {
   try {
+    // ✅ ALREADY CORRECT - includes phoneNumber
     const product = await Product.findById(req.params.id)
       .populate('seller', 'name username email phoneNumber location ratings totalExchanges');
 
@@ -267,7 +253,6 @@ exports.getProduct = async (req, res) => {
       });
     }
 
-    // Increment view count
     product.views += 1;
     await product.save();
 
@@ -296,7 +281,6 @@ exports.updateProduct = async (req, res) => {
       });
     }
 
-    // Check ownership
     if (product.seller.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -304,7 +288,6 @@ exports.updateProduct = async (req, res) => {
       });
     }
 
-    // Prevent updates on sold products
     if (product.status === 'sold') {
       return res.status(400).json({
         success: false,
@@ -312,7 +295,6 @@ exports.updateProduct = async (req, res) => {
       });
     }
 
-    // Update allowed fields
     const allowedUpdates = [
       'name', 'description', 'category', 'listingType', 'price', 
       'condition', 'brand', 'model', 'color', 'size', 'material',
@@ -326,16 +308,16 @@ exports.updateProduct = async (req, res) => {
       }
     });
 
-    // Handle price for donations
     if (updates.listingType === 'donation' && updates.price !== undefined) {
       updates.price = 0;
     }
 
+    // ✅ FIXED - Added phoneNumber
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       updates,
       { new: true, runValidators: true }
-    ).populate('seller', 'name username email location ratings totalExchanges');
+    ).populate('seller', 'name username email location ratings totalExchanges phoneNumber');
 
     res.status(200).json({
       success: true,
@@ -373,7 +355,6 @@ exports.deleteProduct = async (req, res) => {
       });
     }
 
-    // Check ownership
     if (product.seller.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -381,7 +362,6 @@ exports.deleteProduct = async (req, res) => {
       });
     }
 
-    // Delete images from Cloudinary
     for (const image of product.images) {
       try {
         await cloudinary.uploader.destroy(image.public_id);
@@ -408,8 +388,9 @@ exports.deleteProduct = async (req, res) => {
 
 exports.getMyProducts = async (req, res) => {
   try {
+    // ✅ FIXED - Added phoneNumber
     const products = await Product.find({ seller: req.user._id })
-      .populate('seller', 'name username email location ratings totalExchanges')
+      .populate('seller', 'name username email location ratings totalExchanges phoneNumber')
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -429,11 +410,12 @@ exports.getMyProducts = async (req, res) => {
 
 exports.getFeaturedProducts = async (req, res) => {
   try {
+    // ✅ FIXED - Added email, totalExchanges, and phoneNumber
     const products = await Product.find({ 
       isVerified: true, 
       status: 'available' 
     })
-      .populate('seller', 'name username location ratings')
+      .populate('seller', 'name username email location ratings totalExchanges phoneNumber')
       .sort({ views: -1, createdAt: -1 })
       .limit(12);
 
@@ -462,13 +444,14 @@ exports.getSimilarProducts = async (req, res) => {
       });
     }
 
+    // ✅ FIXED - Added email, totalExchanges, and phoneNumber
     const similarProducts = await Product.find({
       _id: { $ne: product._id },
       category: product.category,
       isVerified: true,
       status: 'available'
     })
-      .populate('seller', 'name username location ratings')
+      .populate('seller', 'name username email location ratings totalExchanges phoneNumber')
       .limit(4);
 
     res.status(200).json({
@@ -531,7 +514,6 @@ exports.getProductStats = async (req, res) => {
       });
     }
 
-    // Calculate category distribution
     const categoryDistribution = {};
     stats[0].categories?.forEach(category => {
       categoryDistribution[category] = (categoryDistribution[category] || 0) + 1;
