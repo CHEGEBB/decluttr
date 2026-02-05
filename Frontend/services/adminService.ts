@@ -3,7 +3,6 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-// Admin API endpoints
 const ADMIN_ENDPOINTS = {
   DASHBOARD: '/admin/dashboard',
   STATS: '/admin/stats',
@@ -15,7 +14,6 @@ const ADMIN_ENDPOINTS = {
   SEARCH: '/admin/search',
 };
 
-// Create axios instance with default config
 const adminAxios = axios.create({
   baseURL: API_URL,
   headers: {
@@ -23,10 +21,9 @@ const adminAxios = axios.create({
   },
 });
 
-// Add auth token to requests
 adminAxios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -37,21 +34,19 @@ adminAxios.interceptors.request.use(
   }
 );
 
-// Handle response errors
 adminAxios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Unauthorized - clear token and redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('adminAuthenticated');
       window.location.href = '/admin';
     }
     return Promise.reject(error);
   }
 );
 
-// Types
 export interface DashboardStats {
   totalUsers: number;
   activeUsers: number;
@@ -187,9 +182,7 @@ export interface PlatformStats {
   }>;
 }
 
-// Admin Service Class
 class AdminService {
-  // Dashboard
   async getDashboard(): Promise<DashboardData> {
     try {
       const response = await adminAxios.get(ADMIN_ENDPOINTS.DASHBOARD);
@@ -208,7 +201,6 @@ class AdminService {
     }
   }
 
-  // Users
   async getAllUsers(): Promise<AdminUser[]> {
     try {
       const response = await adminAxios.get(ADMIN_ENDPOINTS.USERS);
@@ -244,7 +236,6 @@ class AdminService {
     }
   }
 
-  // Products
   async getAllProducts(): Promise<PendingProduct[]> {
     try {
       const response = await adminAxios.get(ADMIN_ENDPOINTS.PRODUCTS);
@@ -282,7 +273,6 @@ class AdminService {
     }
   }
 
-  // Orders
   async getAllOrders(): Promise<AdminOrder[]> {
     try {
       const response = await adminAxios.get(ADMIN_ENDPOINTS.ORDERS);
@@ -312,7 +302,6 @@ class AdminService {
     }
   }
 
-  // Transactions
   async getAllTransactions(): Promise<any[]> {
     try {
       const response = await adminAxios.get(ADMIN_ENDPOINTS.TRANSACTIONS);
@@ -322,7 +311,6 @@ class AdminService {
     }
   }
 
-  // Search
   async search(query: string, type?: 'users' | 'products' | 'orders'): Promise<any> {
     try {
       const params: any = { query };
@@ -335,11 +323,10 @@ class AdminService {
     }
   }
 
-  // Admin Authentication Check
   async checkAdminAuth(): Promise<boolean> {
     try {
-      const token = localStorage.getItem('token');
-      const user = localStorage.getItem('user');
+      const token = sessionStorage.getItem('token');
+      const user = sessionStorage.getItem('user');
       
       if (!token || !user) {
         return false;
@@ -352,15 +339,13 @@ class AdminService {
     }
   }
 
-  // Logout
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('adminAuthenticated');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('adminAuthenticated');
     window.location.href = '/admin';
   }
 }
 
-// Export singleton instance
 export const adminService = new AdminService();
 export default adminService;

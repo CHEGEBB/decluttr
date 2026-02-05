@@ -9,7 +9,6 @@ import adminService, {
 } from '@/services/adminService';
 
 export const useAdmin = () => {
-  // State
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [products, setProducts] = useState<PendingProduct[]>([]);
@@ -20,7 +19,6 @@ export const useAdmin = () => {
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Check if user is admin
   useEffect(() => {
     const checkAdmin = async () => {
       const isAdminUser = await adminService.checkAdminAuth();
@@ -29,12 +27,10 @@ export const useAdmin = () => {
     checkAdmin();
   }, []);
 
-  // Clear error
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
-  // Dashboard
   const getDashboard = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -63,7 +59,6 @@ export const useAdmin = () => {
     }
   }, []);
 
-  // Users
   const getAllUsers = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -83,7 +78,6 @@ export const useAdmin = () => {
       setIsLoading(true);
       setError(null);
       await adminService.deleteUser(userId);
-      // Remove from local state
       setUsers(prevUsers => prevUsers.filter(user => user._id !== userId));
     } catch (err: any) {
       setError(err.message || 'Failed to delete user');
@@ -99,7 +93,6 @@ export const useAdmin = () => {
       setIsLoading(true);
       setError(null);
       const updatedUser = await adminService.toggleUserStatus(userId);
-      // Update local state
       setUsers(prevUsers =>
         prevUsers.map(user =>
           user._id === userId ? { ...user, isActive: updatedUser.isActive } : user
@@ -114,7 +107,6 @@ export const useAdmin = () => {
     }
   }, []);
 
-  // Products
   const getAllProducts = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -148,11 +140,9 @@ export const useAdmin = () => {
       setIsLoading(true);
       setError(null);
       await adminService.verifyProduct(productId);
-      // Remove from pending products
       setPendingProducts(prevProducts =>
         prevProducts.filter(product => product._id !== productId)
       );
-      // Refresh products list if needed
       if (products.length > 0) {
         await getAllProducts();
       }
@@ -170,7 +160,6 @@ export const useAdmin = () => {
       setIsLoading(true);
       setError(null);
       await adminService.deleteProduct(productId);
-      // Remove from local state
       setPendingProducts(prevProducts =>
         prevProducts.filter(product => product._id !== productId)
       );
@@ -186,7 +175,6 @@ export const useAdmin = () => {
     }
   }, []);
 
-  // Orders
   const getAllOrders = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -206,7 +194,6 @@ export const useAdmin = () => {
       setIsLoading(true);
       setError(null);
       const updatedOrder = await adminService.updateOrderStatus(orderId, status);
-      // Update local state
       setOrders(prevOrders =>
         prevOrders.map(order =>
           order._id === orderId ? { ...order, orderStatus: updatedOrder.orderStatus } : order
@@ -221,7 +208,6 @@ export const useAdmin = () => {
     }
   }, []);
 
-  // Search
   const search = useCallback(async (query: string, type?: 'users' | 'products' | 'orders') => {
     try {
       setIsLoading(true);
@@ -237,13 +223,11 @@ export const useAdmin = () => {
     }
   }, []);
 
-  // Logout
   const logout = useCallback(() => {
     adminService.logout();
   }, []);
 
   return {
-    // State
     dashboard,
     users,
     products,
@@ -253,8 +237,6 @@ export const useAdmin = () => {
     isLoading,
     error,
     isAdmin,
-
-    // Actions
     clearError,
     getDashboard,
     getPlatformStats,
